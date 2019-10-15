@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>React Webapp Template</title>
+
+    <script src="/public/vendors/polyfill.js"></script>
+    <script src="/public/vendors/system.js"></script>
+    <script src="/public/vendors/system.named-register.js"></script>
+    <script src="/public/vendors/common-modules.js"></script>
+
+    <style>
+        html,
+        body {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="root"></div>
+    <script>
+        System.import('/public/index.js')
+    </script>
+</body>
+
+</html>
