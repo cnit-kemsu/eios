@@ -24,6 +24,7 @@ const namedExports = {
     'react-dom': Object.getOwnPropertyNames(require('react-dom'))
 }
 
+
 /**
  * Сonverts input array to object format
  */
@@ -106,10 +107,10 @@ function mapExtInputArrayToObject(inputArray) {
             }),
             resolve(),
             alias({
-                
-                    "@kemsu/eios-ui": path.resolve(__dirname, '../../../@kemsu/eios-ui/src/index.js'),
-                    "@kemsu/react-routing": path.resolve(__dirname, '../../../@kemsu/react-routing/src/index.js')
-                
+
+                "@kemsu/eios-ui": path.resolve(__dirname, '../../../@kemsu/eios-ui/src/index.js'),
+                "@kemsu/react-routing": path.resolve(__dirname, '../../../@kemsu/react-routing/src/index.js')
+
             }),
             commonjs({ namedExports }),
             !dev && terser()
@@ -121,7 +122,7 @@ function mapExtInputArrayToObject(inputArray) {
 
     // External modules config
     const extConfig = {
-        input: external, // mapExtInputArrayToObject(external),
+        input: external,
         output: {
             dir: 'dist/public/common-modules',
             chunkFileNames: '[name].js',
@@ -186,6 +187,8 @@ function mapExtInputArrayToObject(inputArray) {
 
         bundleCode = bundleCode.concat(code)
     }
+
+    bundleCode = bundleCode.replace(/('|")\.\/([^'".]+)\.js('|")/g, '"$2"')
 
     fs.writeFileSync(cwd + 'dist/public/vendors/common-modules.js', bundleCode)
 
