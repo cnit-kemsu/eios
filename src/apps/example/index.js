@@ -1,6 +1,9 @@
 import React from 'react'
+import jquery from 'jquery'
 
-export default function ExampleApp() {   
+console.log(jquery('body'))
+
+export default function ExampleApp() {
 
     return (
         <div>TODO: Add examples</div>
