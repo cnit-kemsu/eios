@@ -16,18 +16,15 @@ const readline = require('readline')
 
 const glob = require('glob')
 
-/**
- * Named exports for some CommonJS modules
- */
+
+// Именнованный экспорт для некоторых CommonJs модулей 
 const namedExports = {
     'react': Object.getOwnPropertyNames(require('react')),
     'react-dom': Object.getOwnPropertyNames(require('react-dom'))
 }
 
 
-/**
- * Сonverts input array to object format
- */
+// Преобразование входного массива модулей в формат объекта 
 function mapSrcInputArrayToObject(inputArray, inputObject = {}) {
 
     const globOptions = { cwd: __dirname + '/../src' }
@@ -36,7 +33,7 @@ function mapSrcInputArrayToObject(inputArray, inputObject = {}) {
 
         if (!inputArrayItem.endsWith('.js')) throw new Error(`Invalid input '${inputArrayItem}'! The input must end with '.js'`)
 
-        // If input is glob pattern
+        // Если используется шаблон для глобального поиска
         if (inputArrayItem.includes('*')) {
             mapSrcInputArrayToObject(glob.sync(inputArrayItem, globOptions), inputObject)
         } else {
@@ -48,30 +45,17 @@ function mapSrcInputArrayToObject(inputArray, inputObject = {}) {
     return inputObject
 }
 
-function mapExtInputArrayToObject(inputArray) {
 
-    let inputObject = {}
-
-    for (let inputArrayItem of inputArray) {
-        inputObject[inputArrayItem] = require.resolve(inputArrayItem)
-    }
-
-    return inputObject
-}
-
-/**
- * Build
- */
+// Сборка
 (async function build() {
 
     const pkg = JSON.parse(fs.readFileSync(__dirname + '/../package.json'))
 
-    /**
-     *  External modules equal `dependencies` minus `serverDependencies` (from package.json)
-     */
+
+    // Общие модули = `dependencies` минус `serverDependencies` (из package.json)
     const external = Object.keys(pkg.dependencies).filter(dep => !~pkg.serverDependencies.indexOf(dep))
 
-    // Source modules config
+    // Конфигурация для исходников
     const srcConfig = {
         input: mapSrcInputArrayToObject(pkg.rollup.inputs),
         output: {
@@ -83,7 +67,7 @@ function mapExtInputArrayToObject(inputArray) {
 
             const inExternal = ~external.indexOf(id)
 
-            // Check module package.json (if it exists)
+            // Проверка package.json модуля (если он существует)
             if (inExternal) {
                 const moduleFolder = path.dirname(parentId)
                 try {
@@ -120,7 +104,7 @@ function mapExtInputArrayToObject(inputArray) {
         },
     }
 
-    // External modules config
+    // Конфигурация для общих модулей
     const extConfig = {
         input: external,
         output: {
@@ -143,17 +127,14 @@ function mapExtInputArrayToObject(inputArray) {
 
     const cwd = __dirname + '/../'
 
-    // Clean dist folder
-
+    // Очистка целевой папки
     console.log("\x1b[32m", 'clean dist folder', "\x1b[0m")
 
     rimraf.sync(cwd + 'dist')
 
-    // Copy static files  
-
     console.log("\x1b[32m", 'copy static files', "\x1b[0m")
 
-    // Recursive create vendors folder
+    // Создание папки для сторонних библиотек
     fs.mkdirSync(cwd + 'dist/public/vendors', { recursive: true })
 
     const staticFiles = [
@@ -163,9 +144,10 @@ function mapExtInputArrayToObject(inputArray) {
         [`node_modules/systemjs/dist/extras/named-register${!dev ? '.min' : ''}.js`, 'dist/public/vendors/system.named-register.js']
     ].concat(pkg.rollup.staticFiles)
 
+    // Копирование статических файлов
     staticFiles.forEach(([src, dst]) => fs.copyFileSync(cwd + src, cwd + dst))
 
-    // Bundle common modules
+    // Сборка общих модулей (таких как react)
     console.log("\x1b[32m", 'bundle common modules', "\x1b[0m")
 
     const extBundle = await rollup.rollup(extConfig)
@@ -173,7 +155,7 @@ function mapExtInputArrayToObject(inputArray) {
 
     let bundleCode = ''
 
-    // Add module name to `System.register` function and replace `./chunk.js` with `chunk`
+    // Добавление имени модуля в `System.register`
     for (let chunk of output) {
 
         const chunkName = chunk.facadeModuleId ?
@@ -183,16 +165,15 @@ function mapExtInputArrayToObject(inputArray) {
 
         const code = chunk.code
             .replace(/^System\.register\(/, `System.register('${chunkName}',`)
-            .replace(/(\.\.?\/)*chunk(\d*)\.js/g, 'chunk$2')
-
         bundleCode = bundleCode.concat(code)
     }
 
+    // Обработка зависимостей, таких как ./checkPropTypes.js из модуля prop-types. 
     bundleCode = bundleCode.replace(/('|")\.\/([^'".]+)\.js('|")/g, '"$2"')
 
     fs.writeFileSync(cwd + 'dist/public/vendors/common-modules.js', bundleCode)
 
-    // Bundle source modules
+    // Сборка исходников в режиме наблюдения за изменениями и пересборкой    
     if (watch) {
 
         const rl = readline.createInterface({
@@ -225,6 +206,7 @@ function mapExtInputArrayToObject(inputArray) {
                 case 'FATAL': console.error(error.stack); break
             }
         })
+        // Сборка исходников
     } else {
         console.log("\x1b[32m", 'bundle source modules', "\x1b[0m")
 
