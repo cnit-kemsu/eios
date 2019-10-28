@@ -1,0 +1,10 @@
+
+export const borderColor = '#dce3ec'
+export const transitionDuration = '0.1s'
+export const logoWidth = '212px'
+export const logoTxtLtSpc = '2px'
+export const offset = '3vw'
+export const bigHeaderHeight = '94.4px'
+export const smallHeaderHeight = '64.8px'
+export const bigLogoSize = '19.2pt'
+export const smallLogoSize = '14.4pt'
