@@ -59,7 +59,8 @@ function mapSrcInputArrayToObject(inputArray, inputObject = {}) {
         output: {
             dir: 'dist/public',
             format: 'system',
-            sourcemap: true
+            sourcemap: true,
+            exports: 'named'
         },
         external(id, parentId) {
 
