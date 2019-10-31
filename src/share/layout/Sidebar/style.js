@@ -44,7 +44,7 @@ export const dynLogoTextCss = ({ logoSize }) => css`
 `
 
 export const sidebarRootCss = css`
-    transition: margin, background;
+    transition: min-height, margin, background;
     transition-duration: ${transitionDuration};
     z-index: 150;
     display: flex;

@@ -6,13 +6,13 @@ import {
     sidebarVerticalBlockCss, navCss, navLinkListCss, navLinkCss, navLinkContainerCss, selectedNavLinkContainerCss
 } from './style'
 
-export default function Sidebar({ hide, logoSize, height, links }) {
+export default function Sidebar({ logoText, hide, logoSize, height, links }) {
 
     return (
         <>
             <div css={[logoRootCss, dynLogoRootCss({ height })]}>
                 <Link css={[logoTextCss, dynLogoTextCss({ logoSize })]} to="/">
-                    <h1>ЭИОС</h1>
+                    <h1>{logoText}</h1>
                 </Link>
             </div>
             <aside css={[sidebarRootCss, dynSidebarRootCss({ height })]}>

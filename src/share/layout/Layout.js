@@ -9,6 +9,8 @@ import Footer from './Footer'
 import { rootCss, horizontalBlockCss, verticalBlockCss } from './style'
 import { bigHeaderHeight, smallHeaderHeight, bigLogoSize, smallLogoSize } from './constants'
 
+import { usePrevious } from '../hooks'
+
 export default function Layout({
     logoText,
     logoUrl,
@@ -16,25 +18,28 @@ export default function Layout({
     orgName,
     title,
     titleUrl,
-    subtitle,    
+    subtitle,
     hideSidebar,
     topbarLinks,
     sidebarLinks,
-    children,
-    hideChildren
+    children
 }) {
 
     const headerHeight = subtitle ? bigHeaderHeight : smallHeaderHeight
     const logoSize = subtitle ? bigLogoSize : smallLogoSize
 
+    const prevChildren = usePrevious(children)
+
+    if (prevChildren !== children) console.log(prevChildren, children)
+
     return (
         <div css={rootCss}>
-            <Header logoSize={logoSize} logoText={logoText} logoUrl={logoUrl} orgUrl={orgUrl} orgName={orgName} title={title} titleUrl={titleUrl} subtitle={subtitle} height={headerHeight}/>
+            <Header logoSize={logoSize} logoText={logoText} logoUrl={logoUrl} orgUrl={orgUrl} orgName={orgName} title={title} titleUrl={titleUrl} subtitle={subtitle} height={headerHeight} />
             <div css={horizontalBlockCss}>
-                <Sidebar logoSize={logoSize} hide={hideSidebar} height={headerHeight} links={sidebarLinks} />
+                <Sidebar logoText={logoText} logoSize={logoSize} hide={hideSidebar} height={headerHeight} links={sidebarLinks} />
                 <div css={verticalBlockCss}>
                     <Topbar links={topbarLinks} />
-                    <AppContent>{!hideChildren && children}</AppContent>
+                    <AppContent>{children}</AppContent>
                     <Footer />
                 </div>
             </div>
@@ -48,7 +53,7 @@ Layout.defaultProps = {
     orgUrl: 'https://kemsu.ru',
     orgName: 'Кемеровский государственный университет',
     title: 'Электронная информационно-образовательная среда',
-    titleUrl: '/',        
+    titleUrl: '/',
     hideSidebar: false,
     topbarLinks: [],
     sidebarLinks: []
