@@ -1,7 +1,7 @@
 import React, { lazy, useMemo, useReducer, Suspense, Fragment } from 'react'
 import Page404 from './Page404'
 
-const useLayoutInitialValue = { Layout: Fragment, layoutProps: {} }
+const layoutInitialValue = { Layout: Fragment, layoutProps: {} }
 
 async function getLayoutFromModule(module) {
 
@@ -34,13 +34,13 @@ export default function AppRouter({ appName }) {
 
     const [{ Layout, layoutProps }, setLayout] = useReducer(
         (prevState, newState) => ({ ...prevState, ...newState }),
-        useLayoutInitialValue
+        layoutInitialValue
     )
 
     const App = useMemo(() => lazy(async () => {
         try {
 
-            let appModule = await System.import(`/public/apps/${appName}/index.js`)
+            let appModule = await import(`/apps/${appName}/index.js`)
 
             let appLayout = await getLayoutFromModule(appModule)
 
@@ -62,7 +62,7 @@ export default function AppRouter({ appName }) {
             if (appLayout.Layout) {
                 setLayout(appLayout)
             } else if (Layout) {
-                setLayout(useLayoutInitialValue)
+                setLayout(layoutInitialValue)
             }
 
             return appModule
@@ -71,9 +71,7 @@ export default function AppRouter({ appName }) {
             console.error(err)
             return { default: Page404 }
         }
-    }), [location.pathname])
-
-    console.log('AppRouter::render')
+    }), [location.pathname])    
 
     return (
         <Layout {...layoutProps}>
