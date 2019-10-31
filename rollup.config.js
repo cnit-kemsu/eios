@@ -1,5 +1,4 @@
 import copy from 'rollup-plugin-copy'
-import cleaner from 'rollup-plugin-cleaner'
 import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
 import babel from 'rollup-plugin-babel'
@@ -10,7 +9,10 @@ import replace from 'rollup-plugin-replace'
 import postcss from 'rollup-plugin-postcss'
 import { terser } from 'rollup-plugin-terser'
 
+import rimraf from 'rimraf'
+
 import * as pkg from './package.json'
+
 
 const namedExports = {
     'react': Object.getOwnPropertyNames(require('react')),
@@ -35,6 +37,10 @@ function getInputForApps() {
 }
 
 const production = process.env.BUILD === 'production'
+
+
+rimraf.sync(path.join(__dirname, 'dist'))
+
 
 export default {
 
@@ -82,23 +88,19 @@ export default {
         exports: 'named'
     },
 
-    plugins: [
-        babel({
-            exclude: 'node_modules/**',
-            ...pkg.babelOptions
-        }),
+    plugins: [        
         copy({
             targets: [
                 { src: 'src/index.html', dest: 'dist' },
                 { src: 'node_modules/systemjs/dist/system.min.js', dest: 'dist' },
                 { src: 'node_modules/@babel/polyfill/dist/polyfill.min.js', dest: "dist" },
                 { src: 'node_modules/systemjs/dist/extras/named-register.min.js', dest: 'dist' }
-            ]
+            ],
+            copyOnce: true
         }),
-        cleaner({
-            targets: [
-                './dist/'
-            ]
+        babel({
+            exclude: 'node_modules/**',
+            ...pkg.babelOptions
         }),
         resolve({
             dedupe: Object.keys(pkg.dependencies)
