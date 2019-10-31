@@ -9,9 +9,9 @@ import Footer from './Footer'
 import { rootCss, horizontalBlockCss, verticalBlockCss } from './style'
 import { bigHeaderHeight, smallHeaderHeight, bigLogoSize, smallLogoSize } from './constants'
 
-import { usePrevious } from '../hooks'
 
-export default function Layout({
+
+export default function Layout({    
     logoText,
     logoUrl,
     orgUrl,
@@ -26,11 +26,8 @@ export default function Layout({
 }) {
 
     const headerHeight = subtitle ? bigHeaderHeight : smallHeaderHeight
-    const logoSize = subtitle ? bigLogoSize : smallLogoSize
-
-    const prevChildren = usePrevious(children)
-
-    if (prevChildren !== children) console.log(prevChildren, children)
+    const logoSize = subtitle ? bigLogoSize : smallLogoSize  
+    
 
     return (
         <div css={rootCss}>
