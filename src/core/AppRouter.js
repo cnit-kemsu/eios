@@ -1,9 +1,10 @@
-import React, { lazy, useMemo, useReducer, Suspense, Fragment } from 'react'
+import React, { useEffect, useReducer, Fragment, useCallback } from 'react'
 import Page404 from './Page404'
 
-const layoutInitialValue = { Layout: Fragment, layoutProps: {} }
+const stateInitialValue = { App: () => 'Загрузка...', Layout: Fragment, layoutProps: {} }
 
-async function getLayoutFromModule(module) {
+
+async function getLayoutPropsFromModule(module) {
 
     const summaryLayoutProps = module.layoutProps || {}
     const asyncLayoutProps = module.asyncLayoutProps || {}
@@ -11,73 +12,82 @@ async function getLayoutFromModule(module) {
 
     for (const [propName, propValue] of Object.entries(asyncLayoutProps)) {
 
-        if(typeof propValue !== 'function') throw new Error('Значения полей asyncLayoutProps должны быть асинхронными функциями')
+        if (typeof propValue !== 'function') throw new Error('Значения полей asyncLayoutProps должны быть асинхронными функциями')
 
         summaryLayoutProps[propName] = await propValue()
     }
 
     for (const [propName, propValue] of Object.entries(funcLayoutProps)) {
 
-        if(typeof propValue !== 'function') throw new Error('Значения полей funcLayoutProps должны быть функциями')
+        if (typeof propValue !== 'function') throw new Error('Значения полей funcLayoutProps должны быть функциями')
 
         summaryLayoutProps[propName] = propValue(summaryLayoutProps)
     }
 
-    return {
-        Layout: module.Layout,
-        layoutProps: summaryLayoutProps
-    }
+    return summaryLayoutProps
 
 }
 
-export default function AppRouter({ appName }) {
+class InvalidAppModuleError extends Error { }
 
-    const [{ Layout, layoutProps }, setLayout] = useReducer(
+export default function AppRouter({ setError, appName }) {
+
+    const [{ App, Layout, layoutProps }, setState] = useReducer(
         (prevState, newState) => ({ ...prevState, ...newState }),
-        layoutInitialValue
+        stateInitialValue
     )
 
-    const App = useMemo(() => lazy(async () => {
-        try {
+    const setLayoutProps = useCallback((layoutProps) => setState({ layoutProps }), [setState])
 
-            let appModule = await import(`/apps/${appName}/index.js`)
+    useEffect(() => {
+        (async () => {
+            try {
 
-            let appLayout = await getLayoutFromModule(appModule)
+                let appModule = await import(`/apps/${appName}/index.js`)
 
-            if (!appModule.default && !appModule.getAppPage) throw new Error('Модуль приложения должен экспортировать либо компонент (экспорт по умолчанию), либо функцию getPageApp (именованный экспорт)')
+                let layoutProps = await getLayoutPropsFromModule(appModule)
 
-            if (appModule.getAppPage) {
-                const pageModule = await appModule.getAppPage()
+                if (!appModule.default && !appModule.getAppPage) throw new InvalidAppModuleError('Модуль приложения должен экспортировать либо компонент (экспорт по умолчанию), либо функцию getPageApp (именованный экспорт)')
 
-                if (!pageModule.default) throw new Error('Модуль страницы приложения должен экспортировать компонент (экспорт по умолчанию)')
 
-                const pageLayout = await getLayoutFromModule(pageModule)
+                if (appModule.getAppPage) {
+                    let pageModule = appModule.getAppPage()
 
-                if (pageLayout.Layout) appLayout.Layout = pageLayout.Layout
-                appLayout.layoutProps = Object.assign({}, appLayout.layoutProps, pageLayout.layoutProps)
+                    if (pageModule.then) pageModule = await pageModule
 
-                appModule.default = pageModule.default
+                    if (!pageModule.default) throw new InvalidAppModuleError('Модуль страницы приложения должен экспортировать компонент (экспорт по умолчанию)')
+
+                    const pageLayoutProps = await getLayoutPropsFromModule(pageModule)
+
+                    if (pageModule.Layout) appModule.Layout = pageModule.Layout
+                    layoutProps = Object.assign({}, layoutProps, pageLayoutProps)
+
+                    appModule.default = pageModule.default
+                }
+
+                if (appModule.Layout) {
+                    setState({ App: appModule.default, Layout: appModule.Layout, layoutProps })
+                } else if (Layout) {
+                    setState(stateInitialValue)
+                }
+
+            } catch (err) {
+                if (err instanceof InvalidAppModuleError) {
+                    setError(err.message)
+                } else {
+                    setState({ App: Page404, Layout: Fragment, layoutProps: {} })
+                }
             }
+        })()
 
-            if (appLayout.Layout) {
-                setLayout(appLayout)
-            } else if (Layout) {
-                setLayout(layoutInitialValue)
-            }
 
-            return appModule
+    }, [location.pathname])
 
-        } catch (err) {
-            console.error(err)
-            return { default: Page404 }
-        }
-    }), [location.pathname])    
+    if (Layout !== Fragment) layoutProps['setError'] = setError
 
     return (
         <Layout {...layoutProps}>
-            <Suspense fallback={'Загрузка...'}>
-                <App appName={appName} setLayout={setLayout} />
-            </Suspense>
+            <App setError={setError} appName={appName} setLayoutProps={setLayoutProps} />
         </Layout>
     )
 }
