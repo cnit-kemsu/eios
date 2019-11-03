@@ -1,5 +1,3 @@
 node_modules
 dist
 .vscode
-/src/apps/*
-!/src/apps/example
