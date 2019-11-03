@@ -5,7 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 const pkg = JSON.parse(fs.readFileSync(__dirname + '/package.json'))
 
-module.exports = {
+module.exports = (env, argv) => ({
     entry: [
         'react-hot-loader/patch',
         '@babel/polyfill',
@@ -17,7 +17,7 @@ module.exports = {
         publicPath: '/',
         path: path.resolve(__dirname, 'dist'),
     },
-    devtool: 'source-map',
+    devtool: argv.mode === 'production' ? 'none' : 'source-map',
     devServer: {
         contentBase: __dirname + '/dist',
         historyApiFallback: true
@@ -67,4 +67,4 @@ module.exports = {
             }
         ],
     },
-}
+})
