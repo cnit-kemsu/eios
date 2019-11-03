@@ -1,3 +1,5 @@
+import { hot } from 'react-hot-loader/root'
+
 import React, { useState } from 'react'
 import { useRoutes } from '@kemsu/react-routing'
 
@@ -9,7 +11,7 @@ const routes = {
     '@/([a-zA-Z0-9_-]+)((/([a-zA-Z0-9_-]+))*)': ({ 0: appName }, match, { setError }) => <AppRouter setError={setError} appName={appName} match={match} />
 }
 
-export default function Main() {
+export default hot(function Main() {
 
     const [error, setError] = useState()
     const route = useRoutes(routes, null, { setError })
@@ -19,5 +21,5 @@ export default function Main() {
             {route}
         </ErrorBoundary>
     )
-}
+})
 
