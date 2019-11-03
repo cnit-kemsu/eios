@@ -1,17 +1,14 @@
-import React, { useState, useCallback } from 'react'
+import React from 'react'
 
-import { usePrevious } from '../../hooks'
+import { useTransitionFromPrevChildren } from '../../hooks'
+
 import { rootCss, fadeInCss, fadeOutCss } from './style'
 
 export default function AppContent({ children }) {
 
-    const prevChildren = usePrevious(children)
-    const [, forceUpdate] = useState({})
-    const animationEndHanlder = useCallback(() => forceUpdate({}), [forceUpdate])
-
-    const contentChanged = prevChildren !== undefined && prevChildren.type !== children.type       
+    const contentTransitionProps = useTransitionFromPrevChildren(children, fadeInCss, fadeOutCss, rootCss)
 
     return (
-        <main onAnimationEnd={!contentChanged ? undefined : animationEndHanlder} css={[rootCss, !contentChanged ? fadeInCss : fadeOutCss]}>{!contentChanged ? children : prevChildren}</main>
+        <main {...contentTransitionProps} />
     )
 }
