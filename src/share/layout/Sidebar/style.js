@@ -34,7 +34,7 @@ export const logoTextCss = css`
     user-select: none;    
     overflow: hidden;  
     text-decoration: none; 
-    margin-left: calc(${logoWidth} / 2 - ${logoTxtLtSpc} * 2 - 2.25rem);
+    margin-left: calc(${logoWidth} / 2 + ${logoTxtLtSpc} * 2 - 2.25rem);
 `
 
 export const dynLogoTextCss = ({ logoSize }) => css`
@@ -120,4 +120,11 @@ export const navLinkContainerCss = css`
 
 export const selectedNavLinkContainerCss = css`
     background: rgba(255, 255, 255, 0.05); 
+`
+
+export const forumBtnContainerCss = css`
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin-bottom: 36px;   
 `
