@@ -4,7 +4,7 @@
     "build:dev": "npx webpack --mode development",
     "build:prod": "npx webpack --mode production",
     "lint": "npx eslint ./src"
-  },  
+  },
   "dependencies": {
     "@emotion/core": "^10.0.22",
     "@kemsu/eios-ui": "^0.2.0",
@@ -13,7 +13,7 @@
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-helmet": "^5.2.1",
-	"react-hot-loader": "^4.12.15",
+    "react-hot-loader": "^4.12.15",
     "tinycolor2": "^1.4.1"
   },
   "devDependencies": {
@@ -42,11 +42,11 @@
     "webpack-dev-server": "^3.9.0"
   },
   "babelOptions": {
-	"babelrc": false,
+    "babelrc": false,
     "presets": [
       [
         "@babel/preset-env",
-        {          
+        {
           "loose": true,
           "exclude": [
             "transform-async-to-generator",
@@ -66,7 +66,7 @@
       ],
       "@babel/plugin-syntax-dynamic-import",
       "@babel/plugin-proposal-class-properties",
-      "@babel/plugin-proposal-optional-chaining",      
+      "@babel/plugin-proposal-optional-chaining",
       [
         "@babel/plugin-proposal-decorators",
         {
