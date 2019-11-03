@@ -44,7 +44,11 @@ export default function AppRouter({ setError, appName }) {
         (async () => {
             try {
 
-                let appModule = await import(`/apps/${appName}/index.js`)
+                let appModule = await import(
+                    /* webpackMode: "lazy-once" */
+                    /* webpackChunkName: "apps" */
+                    `../apps/${appName}/index.js`
+                )
 
                 let layoutProps = await getLayoutPropsFromModule(appModule)
 
