@@ -30,6 +30,7 @@ async function getLayoutPropsFromModule(module) {
 
 class InvalidAppModuleError extends Error { }
 
+
 export default function AppRouter({ setError, appName }) {
 
     const [{ App, Layout, layoutProps }, setState] = useReducer(
@@ -68,7 +69,7 @@ export default function AppRouter({ setError, appName }) {
                 if (appModule.Layout) {
                     setState({ App: appModule.default, Layout: appModule.Layout, layoutProps })
                 } else if (Layout) {
-                    setState(stateInitialValue)
+                    setState({ ...stateInitialValue, App: appModule.default, })
                 }
 
             } catch (err) {
