@@ -20,7 +20,10 @@ module.exports = (env, argv) => ({
     devtool: argv.mode === 'production' ? 'none' : 'source-map',
     devServer: {
         contentBase: __dirname + '/dist',
-        historyApiFallback: true
+        historyApiFallback: true,
+        host: '0.0.0.0',
+        hot: true,
+        disableHostCheck: true
     },
     plugins: [
         new CleanWebpackPlugin(),
