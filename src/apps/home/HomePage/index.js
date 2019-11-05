@@ -9,6 +9,7 @@ export default function HomePage() {
                 <title>ЭИОС: Главная страница</title>
             </Helmet>
             <h1>Главная страница</h1>
+            <div>Содержимое</div>
         </>
     )
 }
