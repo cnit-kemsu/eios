@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "npx webpack-dev-server --mode development --hot",
+    "start": "npx webpack-dev-server --mode development",
     "build:dev": "npx webpack --mode development",
     "build:prod": "npx webpack --mode production",
     "lint": "npx eslint ./src"
