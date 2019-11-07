@@ -5,7 +5,7 @@
     "build:prod": "npx webpack --mode production",
     "lint": "npx eslint ./src",
     "git:pull": "git pull origin master",
-    "git:push": "git push origin master",
+    "git:push": "git push origin HEAD:master",
     "deploy": "npx run-s git:pull git:push build:prod"
   },
   "dependencies": {
