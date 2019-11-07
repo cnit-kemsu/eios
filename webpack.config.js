@@ -17,6 +17,11 @@ module.exports = (env, argv) => ({
         publicPath: '/',
         path: path.resolve(__dirname, 'dist'),
     },
+    optimization: {
+        splitChunks: {
+            maxSize: 244 * 1024
+        }
+    },
     devtool: argv.mode === 'production' ? 'none' : 'source-map',
     devServer: {
         contentBase: __dirname + '/dist',
@@ -31,18 +36,18 @@ module.exports = (env, argv) => ({
             template: 'src/index.html'
         })
     ],
-    resolve: {     
-        symlinks: false,  
+    resolve: {
+        symlinks: false,
         alias: {
             //'@kemsu/react-routing': path.resolve(__dirname, '../../@kemsu/react-routing'),
             //'@kemsu/eios-ui': path.resolve(__dirname, 'src/modules/eios-ui/index.js'),
             'share': path.resolve(__dirname, 'src/share')
-        }        
+        }
     },
     module: {
         rules: [
             {
-                test: /\.js$/,                
+                test: /\.js$/,
                 exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader',
