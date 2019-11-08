@@ -6,7 +6,7 @@
     "lint": "npx eslint ./src",
     "git:pull": "git pull origin master",
     "git:push": "git push origin HEAD:master",
-    "deploy": "npx run-s git:pull git:push build:prod"
+    "deploy": "npx run-s git:pull git:push \"build:prod -- --deploy\""
   },
   "dependencies": {
     "@emotion/core": "^10.0.22",

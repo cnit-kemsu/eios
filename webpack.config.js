@@ -15,14 +15,17 @@ module.exports = (env, argv) => ({
         filename: 'index.js',
         chunkFilename: '[name].js',
         publicPath: '/',
-        path: path.resolve(__dirname, 'dist'),
+        path: argv.deploy && process.env.EIOS_DEPLOYMENT_PATH ? process.env.EIOS_DEPLOYMENT_PATH : path.resolve(__dirname, 'dist'),
     },
     optimization: {
         splitChunks: {
             maxSize: 244 * 1024
         }
     },
-    devtool: argv.mode === 'production' ? 'none' : 'source-map',
+    performance: {
+        hints: false
+    },
+    devtool: argv.mode === 'production' ? false : 'source-map',
     devServer: {
         contentBase: __dirname + '/dist',
         historyApiFallback: true,
@@ -38,7 +41,7 @@ module.exports = (env, argv) => ({
     ],
     resolve: {
         symlinks: true,
-        alias: {            
+        alias: {
             'share': path.resolve(__dirname, 'src/share'),
             'react-dom': '@hot-loader/react-dom'
         }
