@@ -37,11 +37,10 @@ module.exports = (env, argv) => ({
         })
     ],
     resolve: {
-        symlinks: false,
-        alias: {
-            //'@kemsu/react-routing': path.resolve(__dirname, '../../@kemsu/react-routing'),
-            //'@kemsu/eios-ui': path.resolve(__dirname, 'src/modules/eios-ui/index.js'),
-            'share': path.resolve(__dirname, 'src/share')
+        symlinks: true,
+        alias: {            
+            'share': path.resolve(__dirname, 'src/share'),
+            'react-dom': '@hot-loader/react-dom'
         }
     },
     module: {
@@ -73,6 +72,6 @@ module.exports = (env, argv) => ({
                     'file-loader',
                 ],
             }
-        ],
-    },
+        ]
+    }
 })

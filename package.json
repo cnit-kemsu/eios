@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@emotion/core": "^10.0.22",
+    "@hot-loader/react-dom": "^16.11.0",
     "@kemsu/eios-ui": "^0.2.0",
     "@kemsu/react-routing": "^1.2.0",
     "prop-types": "^15.7.2",
