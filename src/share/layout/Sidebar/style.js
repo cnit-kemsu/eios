@@ -8,7 +8,7 @@ export const logoRootCss = css`
     position: absolute;
     left: 0px;
     top: 0px;    
-    width: ${logoWidth};    
+       
     border: none;    
     display: flex;      
     align-items: center;    
@@ -17,8 +17,9 @@ export const logoRootCss = css`
     border-bottom: 1px solid #4C6293;
 `
 
-export const dynLogoRootCss = ({ height }) => css`
+export const dynLogoRootCss = ({ height, hide }) => css`
     height: ${height};
+    width: ${hide ? '0px' : logoWidth}; 
 `
 
 export const logoTextCss = css`
@@ -47,15 +48,15 @@ export const sidebarRootCss = css`
     transition: min-height, margin, background;
     transition-duration: ${transitionDuration};
     z-index: 150;
-    display: flex;
-    margin-left: 0px;
+    display: flex;    
     min-width: ${logoWidth};
     
     background: linear-gradient(to bottom, rgb(30, 67, 128) 0px, rgb(30, 67, 128) 50%, rgb(48, 105, 202) 100%);
 `
 
-export const dynSidebarRootCss = ({ height }) => css`
+export const dynSidebarRootCss = ({ height, hide }) => css`
     min-height: calc(100vh - ${height});
+    margin-left: ${hide ?  `-${logoWidth}` : '0px'};
 `
 
 export const sidebarVerticalBlockCss = css`
@@ -126,5 +127,5 @@ export const forumBtnContainerCss = css`
     display: flex;
     align-items: center;
     flex-direction: column;
-    margin-bottom: 36px;   
+    margin-bottom: 36px; 
 `

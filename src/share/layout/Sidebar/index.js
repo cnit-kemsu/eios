@@ -11,12 +11,12 @@ export default function Sidebar({ logoText, hide, logoSize, height, links }) {
 
     return (
         <>
-            <div css={[logoRootCss, dynLogoRootCss({ height })]}>
+            <div css={[logoRootCss, dynLogoRootCss({ height, hide })]}>
                 <Link css={[logoTextCss, dynLogoTextCss({ logoSize })]} to="/">
                     <h1>{logoText}</h1>
                 </Link>
             </div>
-            <aside css={[sidebarRootCss, dynSidebarRootCss({ height })]}>
+            <aside css={[sidebarRootCss, dynSidebarRootCss({ height, hide })]}>
                 <div css={sidebarVerticalBlockCss}>
                     <nav css={navCss}>
                         <ul css={navLinkListCss}>

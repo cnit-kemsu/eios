@@ -20,8 +20,11 @@ export default function Layout({
     titleUrl,
     subtitle,
     hideSidebar,
+    hideTopbar,
     topbarLinks,
-    sidebarLinks,
+    sidebarLinks,    
+    footerLinks,   
+    footerContactInfo,
     children
 }) {
 
@@ -33,11 +36,11 @@ export default function Layout({
         <div css={rootCss}>
             <Header logoSize={logoSize} logoText={logoText} logoUrl={logoUrl} orgUrl={orgUrl} orgName={orgName} title={title} titleUrl={titleUrl} subtitle={subtitle} height={headerHeight} />
             <div css={horizontalBlockCss}>
-                <Sidebar logoText={logoText} logoSize={logoSize} hide={hideSidebar} height={headerHeight} links={sidebarLinks} />
+                <Sidebar  logoText={logoText} logoSize={logoSize} hide={hideSidebar} height={headerHeight} links={sidebarLinks} />
                 <div css={verticalBlockCss}>
-                    <Topbar links={topbarLinks} />
+                    <Topbar hide={hideTopbar} links={topbarLinks} />
                     <AppContent>{children}</AppContent>
-                    <Footer />
+                    <Footer contactInfo={footerContactInfo} links={footerLinks} />
                 </div>
             </div>
         </div>
