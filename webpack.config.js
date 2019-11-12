@@ -2,6 +2,7 @@ const path = require('path')
 const fs = require('fs')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 
 const pkg = JSON.parse(fs.readFileSync(__dirname + '/package.json'))
 
@@ -37,7 +38,10 @@ module.exports = (env, argv) => ({
         new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
             template: 'src/index.html'
-        })
+        }),
+        new CopyPlugin([
+            { from: 'src/assets', to: 'assets' },            
+          ])
     ],
     resolve: {
         symlinks: true,
