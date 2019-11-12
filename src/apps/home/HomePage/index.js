@@ -15,8 +15,12 @@ export default function HomePage() {
 }
 
 
+export const pageProps = {    
+}
+
 export const layoutProps = {
-    subtitle: 'Личный кабинет',    
+    //hideSidebar: true,
+    subtitle: 'Личный кабинет',
     sidebarLinks: [
         { title: 'Деканат', url: '/dekanat' },
         { title: 'Пример', url: '/example' }
