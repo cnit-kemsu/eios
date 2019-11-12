@@ -4,13 +4,13 @@ import { toArray } from '../utils'
 
 
 
-export function useTransitionFromPrevChildren(children, fadeInEmotionCss, fadeOutEmotionCss, emotionCss, isTransition = true) {
+export function useFadeTransition(content, fadeInEmotionCss, fadeOutEmotionCss, emotionCss, isTransition = true) {
 
     const [transitionChildren, setTransitionContent] = useState(null)
-    const prevContent = usePrevious(children)
+    const prevContent = usePrevious(content)
     const onTransitionEnd = useCallback(() => setTransitionContent(null), [setTransitionContent])
 
-    const contentChanged = prevContent !== undefined && prevContent.type !== children.type
+    const contentChanged = prevContent !== undefined && prevContent.type !== content.type
 
     useEffect(() => {
 
@@ -20,7 +20,7 @@ export function useTransitionFromPrevChildren(children, fadeInEmotionCss, fadeOu
 
     }, [contentChanged])
 
-    const targetChildren = contentChanged || transitionChildren ? transitionChildren || prevContent : children
+    const targetChildren = contentChanged || transitionChildren ? transitionChildren || prevContent : content
     const css = [...toArray(emotionCss), contentChanged || transitionChildren ? fadeOutEmotionCss : fadeInEmotionCss]
 
     return { [isTransition ? 'onTransitionEnd' : 'onAnimationEnd']: transitionChildren || contentChanged ? onTransitionEnd : undefined, children: targetChildren, css }
