@@ -25,6 +25,7 @@ export default function Layout({
     sidebarLinks,    
     footerLinks,   
     footerContactInfo,
+    topbarAdditionalInfo,    
     children
 }) {
 
@@ -38,7 +39,7 @@ export default function Layout({
             <div css={horizontalBlockCss}>
                 <Sidebar  logoText={logoText} logoSize={logoSize} hide={hideSidebar} height={headerHeight} links={sidebarLinks} />
                 <div css={verticalBlockCss}>
-                    <Topbar hide={hideTopbar} links={topbarLinks} />
+                    <Topbar additionalInfo={topbarAdditionalInfo} hide={hideTopbar} links={topbarLinks} />
                     <AppContent>{children}</AppContent>
                     <Footer contactInfo={footerContactInfo} links={footerLinks} />
                 </div>

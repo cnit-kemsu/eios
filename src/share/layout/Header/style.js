@@ -8,6 +8,7 @@ export const rootCss = css`
     flex: 0 0 auto;
     border-bottom: 1px solid ${borderColor};
     transition: height ${transitionDuration};
+    overflow: hidden;
 `
 
 export const dynRootCss = ({ height }) => css`
@@ -15,7 +16,7 @@ export const dynRootCss = ({ height }) => css`
 `
 
 export const logoContainerCss = css`
-    flex: 0 0 ${logoWidth}px;
+    flex: 0 0 ${logoWidth};
     width: ${logoWidth};
     border: none;
     border-right: 1px solid ${borderColor}; 
@@ -28,16 +29,20 @@ export const logoContainerCss = css`
 `
 
 export const logoTextCss = css`
+    a& {
+        h1 {
+            transition: font-size ${transitionDuration};        
+            padding: 0px;
+            font-weight: normal;
+        }
 
-    h1 {
-        transition: font-size ${transitionDuration};        
-        padding: 0px;
-        font-weight: normal;
+        width: 212px;
+        text-align: center;
+
+        color: #2858a9;    
+        user-select: none;    
+        text-decoration: none;
     }
-
-    color: #2858a9;    
-    user-select: none;    
-    text-decoration: none;
 `
 
 export const dynLogoTextCss = ({ logoSize }) => css`

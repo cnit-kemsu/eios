@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { createElement } from 'react'
 import { Link } from '@kemsu/react-routing'
 import { rootCss, dynRootCss, linkCss, fadeInLinkCss, fadeOutLinkCss } from './style'
 
-
 import { usePrevious } from 'share/hooks'
+
 
 function getMatchesNumber(prev = [], cur) {
     let minLength = Math.min(prev.length, cur.length)
@@ -14,22 +14,22 @@ function getMatchesNumber(prev = [], cur) {
     return i
 }
 
-export default function Topbar({ links, hide }) {
+export default function Topbar({ links, hide, additionalInfo }) {
 
     const prevLinks = usePrevious(links)
 
-    const linkMatchesNumber = getMatchesNumber(prevLinks, links)   
+    const linkMatchesNumber = getMatchesNumber(prevLinks, links)
 
-    const targetLinks = prevLinks?.length > links.length ? prevLinks : links
-    const fadeInTail = links.length > prevLinks?.length
+    const targetLinks = prevLinks ?.length > links.length ? prevLinks : links
+    const fadeInTail = links.length >= (prevLinks ?.length || 0)
 
     return (
         <div css={[rootCss, dynRootCss({ hide })]}>
             <nav css={linkCss}>
                 {targetLinks.map(({ title, url, ext }, index) => {
 
-                    const isLastLink = index === links.length - 1                   
-                    
+                    const isLastLink = index === links.length - 1
+
                     return (
                         <span key={index} css={index >= linkMatchesNumber ? (fadeInTail ? fadeInLinkCss : fadeOutLinkCss) : undefined}>
                             {index !== 0 && <span>/</span>}
@@ -38,6 +38,9 @@ export default function Topbar({ links, hide }) {
                     )
                 })}
             </nav>
+            <div>
+                {additionalInfo}
+            </div>
         </div>
     )
 }

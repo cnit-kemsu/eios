@@ -6,7 +6,7 @@ export const rootCss = css`
     z-index: 0;
     display: flex;
     flex-direction: column;
-    border-top: 1px solid #c6d2e8;
+    border-top: 1px solid rgb(220, 227, 236);
 `
 
 export const copyrightCss = css`
@@ -14,7 +14,7 @@ export const copyrightCss = css`
     justify-content: center;
     align-items: flex-start;    
     height: 52px;    
-    border-top: 1px solid #c6d2e8;
+    border-top: 1px solid rgb(220, 227, 236);
     overflow: hidden;    
     padding-bottom: 24px;
     transition-property: background;  
@@ -69,7 +69,7 @@ export const linkCss = css`
         background: #e8f0fb;
     }
 
-    &:not(::first-of-type){
+    &:not(:first-of-type){
         border-left: none;
     }
 `
@@ -113,7 +113,7 @@ export const contactItemCss = css`
 
     margin-bottom: 3.2px;
 
-    div {
+    & > span {
         color: #575d6d;
 
         & + span, & + a {

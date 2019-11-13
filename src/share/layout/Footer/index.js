@@ -3,7 +3,7 @@ import { jsx } from '@emotion/core'
 import { Ripple } from '@kemsu/eios-ui'
 import { Link } from '@kemsu/react-routing'
 import {
-    rootCss, copyrightCss, topCss, linkGroupCss, dynLinkGroupCss,
+    rootCss, copyrightCss, topCss, linkGroupCss, dynLinkGroupCss, contactsCss,
     feedbackInfoCss, contactItemCss, linkIconCss, linkTitleCss, linkCss
 } from './style'
 
@@ -30,11 +30,11 @@ export default function Footer({ links = [], contactInfo : { phone, localPhone, 
                     }
                 </div>
                 <div css={feedbackInfoCss}>
-                    <div>
+                    <div css={contactsCss}>
                         <h3 style={{ paddingTop: '12.8px' }}>Контакты:</h3>
-                        <div css={contactItemCss}><div>Телефон: </div><span>{phone}</span></div>
-                        <div css={contactItemCss}><div>Местный телефон: </div><span>{localPhone}</span></div>
-                        <div css={contactItemCss}><div>E-mail: </div><a href="mailto:ocpo@kemsu.ru">{email}</a></div>
+                        <div css={contactItemCss}><span>Телефон: </span><span>{phone}</span></div>
+                        <div css={contactItemCss}><span>Местный телефон: </span><span>{localPhone}</span></div>
+                        <div css={contactItemCss}><span>E-mail: </span><a href="mailto:ocpo@kemsu.ru">{email}</a></div>
                     </div>
                 </div>
             </div>

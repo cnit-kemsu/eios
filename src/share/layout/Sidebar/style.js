@@ -7,14 +7,14 @@ export const logoRootCss = css`
     transition-duration: ${transitionDuration};
     position: absolute;
     left: 0px;
-    top: 0px;    
-       
+    top: 0px;       
     border: none;    
     display: flex;      
     align-items: center;    
     letter-spacing: ${logoTxtLtSpc};    
     background: rgb(30, 67, 128);
     border-bottom: 1px solid #4C6293;
+    overflow: hidden;
 `
 
 export const dynLogoRootCss = ({ height, hide }) => css`
@@ -23,19 +23,22 @@ export const dynLogoRootCss = ({ height, hide }) => css`
 `
 
 export const logoTextCss = css`
-
-    h1 {        
-        transition: font-size ${transitionDuration};
-        padding: 0px;
-        font-weight: normal;
-        color: white;
+    a& {
+        h1 {        
+            transition: font-size ${transitionDuration};
+            padding: 0px;
+            font-weight: normal;
+            color: white;
+        }
+        
+        position: absolute;
+        width: ${logoWidth};
+        text-align: center;
+        transition: opacity ${transitionDuration};   
+        user-select: none;    
+        overflow: hidden;  
+        text-decoration: none;  
     }
-
-    transition: opacity ${transitionDuration};   
-    user-select: none;    
-    overflow: hidden;  
-    text-decoration: none; 
-    margin-left: calc(${logoWidth} / 2 + ${logoTxtLtSpc} * 2 - 2.25rem);
 `
 
 export const dynLogoTextCss = ({ logoSize }) => css`
@@ -49,8 +52,7 @@ export const sidebarRootCss = css`
     transition-duration: ${transitionDuration};
     z-index: 150;
     display: flex;    
-    min-width: ${logoWidth};
-    
+    min-width: ${logoWidth};    
     background: linear-gradient(to bottom, rgb(30, 67, 128) 0px, rgb(30, 67, 128) 50%, rgb(48, 105, 202) 100%);
 `
 
@@ -96,9 +98,7 @@ export const navLinkCss = css`
     margin-left: 25.6px;
     display: flex;        
     align-items: center;    
-    cursor: pointer;
-
-    
+    cursor: pointer;    
 `
 
 export const navLinkContainerCss = css`
