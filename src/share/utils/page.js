@@ -28,7 +28,7 @@ const ClosedAccessMessage = () => (
     </Message>
 )
 
-export function makeAppPageGenerator(appName, defaultPageModule, defaultLayoutProps) {
+export function makeAppPageGenerator(appName, defaultPageModule, defaultProps) {
     return async () => {
 
         let pageModule
@@ -37,7 +37,7 @@ export function makeAppPageGenerator(appName, defaultPageModule, defaultLayoutPr
         else pageModule = await import(`../../apps/${appName}/${location.pathname.split('/').slice(2).join('/')}/index.js`)
 
         let { pageProps: { secure, ignoreNotChangedPassword } = {} } = pageModule
-        
+
         if (typeof secure === 'function') secure = secure()
         if (secure ?.then) secure = await secure
 
@@ -64,12 +64,13 @@ export function makeAppPageGenerator(appName, defaultPageModule, defaultLayoutPr
             }
         }
 
-        if(defaultLayoutProps) {
-            pageModule = {
-                default: pageModule.default,
-                layoutProps: Object.assign({}, defaultLayoutProps, pageModule.layoutProps)  
-            }
-        }       
+        const { layoutProps: defaultLayoutProps, funcLayoutProps: defaultFuncLayoutProps } = defaultProps || {}
+
+        pageModule = {
+            default: pageModule.default,
+            layoutProps: Object.assign({}, defaultLayoutProps, pageModule.layoutProps),
+            funcLayoutProps: Object.assign({}, defaultFuncLayoutProps, pageModule.funcLayoutProps)
+        }
 
         return pageModule
     }
