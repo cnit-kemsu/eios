@@ -40,8 +40,8 @@ module.exports = (env, argv) => ({
             template: 'src/index.html'
         }),
         new CopyPlugin([
-            { from: 'src/assets', to: 'assets' },            
-          ])
+            { from: 'src/assets', to: 'assets' },
+        ])
     ],
     resolve: {
         symlinks: true,
@@ -52,6 +52,17 @@ module.exports = (env, argv) => ({
     },
     module: {
         rules: [
+            {
+                enforce: 'pre',
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'eslint-loader',
+                    options: {
+                        baseConfig: require('./.eslintrc')              
+                    }
+                }
+            },
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
