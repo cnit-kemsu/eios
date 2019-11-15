@@ -1,5 +1,5 @@
 import * as homePageModule from './HomePage'
-import { makeAppPageGenerator } from 'share/utils'
+import { makeAppPageGenerator, getUserFullName, logout } from 'share/utils'
 
 export const getAppPage = makeAppPageGenerator('home', homePageModule, {
     layoutProps: {
@@ -14,7 +14,11 @@ export const getAppPage = makeAppPageGenerator('home', homePageModule, {
             email: 'ocpo@kemsu.ru'
         },
         hideTopbar: true,
-        hideSidebar: true
+        hideSidebar: true,
+        onLogoutButtonClick: logout
+    },
+    funcLayoutProps: {
+        username: getUserFullName        
     }
 })
 
