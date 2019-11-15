@@ -11,10 +11,12 @@
   "dependencies": {
     "@emotion/core": "^10.0.22",
     "@hot-loader/react-dom": "^16.11.0",
-    "@kemsu/eios-ui": "^0.2.1",
+    "@kemsu/eios-ui": "^0.2.2",
     "@kemsu/react-routing": "^1.2.1",
     "jwt-decode": "^2.2.0",
+    "normalize.css": "^8.0.1",
     "prop-types": "^15.7.2",
+    "query-string": "^6.9.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-helmet": "^5.2.1",
