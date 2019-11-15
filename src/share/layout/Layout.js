@@ -6,12 +6,13 @@ import Topbar from './Topbar'
 import AppContent from './AppContent'
 import Footer from './Footer'
 
-import { rootCss, horizontalBlockCss, verticalBlockCss } from './style'
+import { globalCss, rootCss, horizontalBlockCss, verticalBlockCss } from './style'
 import { bigHeaderHeight, smallHeaderHeight, bigLogoSize, smallLogoSize } from './constants'
+import { Global } from '@emotion/core'
 
 
 
-export default function Layout({    
+export default function Layout({
     logoText,
     logoUrl,
     orgUrl,
@@ -22,22 +23,29 @@ export default function Layout({
     hideSidebar,
     hideTopbar,
     topbarLinks,
-    sidebarLinks,    
-    footerLinks,   
+    sidebarLinks,
+    footerLinks,
     footerContactInfo,
-    topbarAdditionalInfo,    
+    topbarAdditionalInfo,
+    username,
+    onUsernameClick,
+    onLogoutButtonClick,
     children
 }) {
 
     const headerHeight = subtitle ? bigHeaderHeight : smallHeaderHeight
-    const logoSize = subtitle ? bigLogoSize : smallLogoSize  
-    
+    const logoSize = subtitle ? bigLogoSize : smallLogoSize
+
 
     return (
         <div css={rootCss}>
-            <Header logoSize={logoSize} logoText={logoText} logoUrl={logoUrl} orgUrl={orgUrl} orgName={orgName} title={title} titleUrl={titleUrl} subtitle={subtitle} height={headerHeight} />
+            <Global styles={globalCss} />
+            <Header
+                onUsernameClick={onUsernameClick} onLogoutButtonClick={onLogoutButtonClick} username={username}
+                logoSize={logoSize} logoText={logoText} logoUrl={logoUrl} orgUrl={orgUrl}
+                orgName={orgName} title={title} titleUrl={titleUrl} subtitle={subtitle} height={headerHeight} />
             <div css={horizontalBlockCss}>
-                <Sidebar  logoText={logoText} logoSize={logoSize} hide={hideSidebar} height={headerHeight} links={sidebarLinks} />
+                <Sidebar logoText={logoText} logoSize={logoSize} hide={hideSidebar} height={headerHeight} links={sidebarLinks} />
                 <div css={verticalBlockCss}>
                     <Topbar additionalInfo={topbarAdditionalInfo} hide={hideTopbar} links={topbarLinks} />
                     <AppContent>{children}</AppContent>

@@ -59,3 +59,18 @@ export const titleContainerCss = css`
     align-items: center;
     display: flex;
 `
+
+export const usernameContainerCss = css`
+    display: flex;
+    align-items: center;
+    justify-content: center;     
+    
+`
+
+export const usernameItemsCss = css`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    margin: 0px 25.6px;
+`

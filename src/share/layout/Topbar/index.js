@@ -1,4 +1,4 @@
-import React, { createElement } from 'react'
+import React from 'react'
 import { Link } from '@kemsu/react-routing'
 import { rootCss, dynRootCss, linkCss, fadeInLinkCss, fadeOutLinkCss } from './style'
 

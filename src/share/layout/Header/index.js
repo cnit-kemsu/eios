@@ -1,14 +1,15 @@
 import React from 'react'
 import { Link } from '@kemsu/react-routing'
+import { Button, Tooltip } from '@kemsu/eios-ui'
 
 import {
-    rootCss, dynRootCss, logoContainerCss,
-    logoTextCss, dynLogoTextCss, titleContainerCss
+    rootCss, dynRootCss, logoContainerCss, usernameContainerCss,
+    logoTextCss, dynLogoTextCss, titleContainerCss, usernameItemsCss
 } from './style'
 
 
 
-export default function Header({    
+export default function Header({
     logoSize,
     logoText,
     logoUrl,
@@ -17,11 +18,11 @@ export default function Header({
     title,
     titleUrl,
     subtitle,
-    hide,
+    username,
+    onUsernameClick,
+    onLogoutButtonClick,
     height
 }) {
-
-    let hasSubtitle = !!subtitle
 
     return (
         <header css={[rootCss, dynRootCss({ height })]}>
@@ -48,6 +49,22 @@ export default function Header({
                             )
                         }
                     </h2>
+                </div>
+            </div>
+            <div css={usernameContainerCss}>
+                <div css={usernameItemsCss}>
+                    {
+                        username ? (
+                            <>
+                                <Button onClick={onUsernameClick} flat transparent borderless colorStyle="primary" style={{ marginRight: '16px' }}>{username}</Button>
+                                <div>
+                                    <Tooltip text='Выйти' position='bottom'>
+                                        <Button onClick={onLogoutButtonClick} flat colorStyle='secondary' transparent borderless><i className='eios-icon eios-icon-exit' style={{ fontSize: '14.4pt' }}></i></Button>
+                                    </Tooltip>
+                                </div>
+                            </>
+                        ) : <div style={{ width: '168px', textAlign: 'center' }}>Гость</div>
+                    }
                 </div>
             </div>
         </header>

@@ -1,21 +1,16 @@
 import { css } from '@emotion/core'
 
 
-export const rootCss = css`
+export const globalCss = css`
+    
+    html, body {
+        font-size: 11.2px;
+        font-family: Tahoma, Verdana, Segoe, sans-serif;
+        width: 100%;
+        height: 100%;
+        color: #575d6d;
+    }
 
-    /* prev: injectGlobal */
-    font-size: 11.2px;
-    font-family: Tahoma, Verdana, Segoe, sans-serif;
-    width: 100%;
-    height: 100%;
-    color: #575d6d;
-
-    /* prev: Container */
-    min-width: 984px;       
-    display: flex;
-    flex-direction: column;
-
-    /* prev: injectGlobal */
     h1, h2, h3, h4, h5, h6{
         padding: 0px;
         margin: 0px;        
@@ -40,6 +35,20 @@ export const rootCss = css`
     a {
         color: #575d6d;
     }
+`
+
+export const rootCss = css`
+
+    /* prev: injectGlobal */
+    
+
+    /* prev: Container */
+    min-width: 984px;       
+    display: flex;
+    flex-direction: column;
+
+    /* prev: injectGlobal */
+    
 `
 
 export const horizontalBlockCss = css`
