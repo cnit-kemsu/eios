@@ -1,7 +1,8 @@
 import React from 'react'
 
 import * as dekanatPageModule from './DekanatPage'
-import { makeAppPageGenerator } from 'share/utils'
+import { makeAppPageGenerator, getUserFullName, logout, redirectToOldIais } from 'share/utils'
+
 
 export const getAppPage = makeAppPageGenerator('dekanat', dekanatPageModule, {
     layoutProps: {
@@ -10,13 +11,16 @@ export const getAppPage = makeAppPageGenerator('dekanat', dekanatPageModule, {
             localPhone: '4-62, 3-46, 4-65',
             email: 'ocpo@kemsu.ru'
         },
+        onLogoutButtonClick: logout,
+        onUsernameClick: () => redirectToOldIais('security/my/index.htm')
     },
     funcLayoutProps: {
         topbarAdditionalInfo: () => (
             <div style={{ marginRight: '28px' }}>
-                <div style={{ textDecoration: 'none', fontSize: '13.6px'}}>TODO: выводить факультет</div>
+                <div style={{ textDecoration: 'none', fontSize: '13.6px' }}>TODO: выводить факультет</div>
             </div>
-        )
+        ),
+        username: getUserFullName
     }
 
 })
