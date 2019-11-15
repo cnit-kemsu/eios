@@ -1,6 +1,7 @@
 export const apiUriPrefix = 'https://api-next.kemsu.ru/api'
 export const apiDevUriPrefix = 'https://api-dev.kemsu.ru/api'
 
+import { getAccessToken } from './auth'
 
 async function fetchApiBase(urlPrefix, uri, options = {}, json = true, throwError = false) {
 

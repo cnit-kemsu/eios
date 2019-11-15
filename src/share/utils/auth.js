@@ -1,5 +1,7 @@
 import jwt_decode from 'jwt-decode'
+import { HistoryManager } from '@kemsu/react-routing'
 
+import { requestToOldIais } from './old-iais'
 import { apiUriPrefix, fetchApi } from './api'
 
 
@@ -48,12 +50,24 @@ export function logout() {
     localStorage.removeItem('userInfo')
     localStorage.removeItem('facultyInfo')
     document.cookie = `accessToken=; path=/; domain=.kemsu.ru; expires=${(new Date(0)).toUTCString()}`
+
+    requestToOldIais('restricted/logoff.htm', null, () => {
+
+        if (location.pathname == '/home') location.reload()
+        else {
+            HistoryManager.push('/home')
+        }
+    }, true)
 }
 
 export async function auth(login, password, accessTokenLifetime) {
 
     let response = await fetch(`${apiUriPrefix}/auth`, {
-        method: 'post',        
+        method: 'post',
+        headers: {
+            'Accept': 'application/json',
+            "Content-Type": "application/json"
+        },
         body: JSON.stringify({
             login: login,
             password: password,
@@ -75,7 +89,7 @@ export async function auth(login, password, accessTokenLifetime) {
 }
 
 export function generateAuthUrlFor(url) {
-    return `/a/eios?backUrl=${encodeURI(url || location.pathname)}`
+    return `/home?backUrl=${encodeURI(url || location.pathname)}`
 }
 
 export async function checkAccessTo(secure) {
@@ -87,7 +101,7 @@ export async function checkAccessTo(secure) {
     }
 
     let result = await fetchApi('check-access-to', {
-        method: 'POST',        
+        method: 'POST',
         body: JSON.stringify({
             userId: userInfo.id,
             secure: secure
