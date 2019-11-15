@@ -40,11 +40,12 @@ module.exports = (env, argv) => ({
             template: 'src/index.html'
         }),
         new CopyPlugin([
-            { from: 'src/assets', to: 'assets' },
+            { from: 'src/assets', to: 'assets', force: true },
         ])
     ],
     resolve: {
-        symlinks: true,
+        symlinks: false,
+        modules: [path.resolve(__dirname, 'node_modules'), ...fs.readdirSync(path.resolve(__dirname, 'src/apps')).map(appName => path.resolve(__dirname, 'src/apps', appName, 'node_modules'))],
         alias: {
             'share': path.resolve(__dirname, 'src/share'),
             'react-dom': '@hot-loader/react-dom'
@@ -59,7 +60,8 @@ module.exports = (env, argv) => ({
                 use: {
                     loader: 'eslint-loader',
                     options: {
-                        baseConfig: require('./.eslintrc')              
+                        baseConfig: require('./.eslintrc'),
+                        failOnWarning: false
                     }
                 }
             },
