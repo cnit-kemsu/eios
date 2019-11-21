@@ -9,20 +9,24 @@ export {
     getUserInfo,
     isAccessTokenValid,
     logout,
-    updateUserInfo
+    updateUserInfo,
+    userInfoExists,
+    userIsStudent
 } from './auth'
 
-export function toArray(value) {
-    if(value instanceof Array) return value
-    return [value]
-}
-
-export { makeAppPageGenerator } from './page'
+export { makeAppGenerator, makePageGenerator, performAuthСheck } from './page'
 
 export {
     checkAuthInOldIais,
     getUrlForOldIais,
     redirectToOldIais,
     requestToOldIais,
-    syncWithOldIais
+    syncWithOldIais,
+    startSyncWithOldIais
 } from './old-iais'
+
+
+export function toArray(value) {
+    if(value instanceof Array) return value
+    return [value]
+}

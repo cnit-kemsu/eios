@@ -11,7 +11,7 @@
   "dependencies": {
     "@emotion/core": "^10.0.22",
     "@hot-loader/react-dom": "^16.11.0",
-    "@kemsu/eios-ui": "^0.2.2",
+    "@kemsu/eios-ui": "file:../../@kemsu/eios-ui",
     "@kemsu/react-routing": "^1.2.1",
     "jwt-decode": "^2.2.0",
     "normalize.css": "^8.0.1",

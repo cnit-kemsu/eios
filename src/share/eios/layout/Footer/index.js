@@ -7,7 +7,7 @@ import {
     feedbackInfoCss, contactItemCss, linkIconCss, linkTitleCss, linkCss
 } from './style'
 
-import '../../../assets/icons/font-icons/eios-icons/style.css'
+import '../../../../assets/icons/font-icons/eios-icons/style.css'
 
 export default function Footer({ links = [], contactInfo : { phone, localPhone, email } = {} }) {
 
@@ -22,7 +22,7 @@ export default function Footer({ links = [], contactInfo : { phone, localPhone, 
                             css: linkCss
                         }, (
                             <>
-                                <Ripple />
+                                <Ripple color='rgba(1,1,1,0.1)' />
                                 <i className={`eios-icon eios-icon-${icon}`} css={linkIconCss}></i>
                                 <div css={linkTitleCss}>{title}</div>
                             </>

@@ -1,28 +1,26 @@
 import React from 'react'
 
-import * as dekanatPageModule from './DekanatPage'
-import { makeAppPageGenerator, getUserFullName, logout, redirectToOldIais } from 'share/utils'
+import { makePageGenerator, getUserFullName, logout, redirectToOldIais } from 'share/utils'
+import { cnitContacts } from 'share/eios/cnitContacts'
+
+import * as rootPageModule from './DekanatPage'
 
 
-export const getAppPage = makeAppPageGenerator('dekanat', dekanatPageModule, {
-    layoutProps: {
-        footerContactInfo: {
-            phone: '(384-2) 58-32-89, 58-33-41, 58-44-03',
-            localPhone: '4-62, 3-46, 4-65',
-            email: 'ocpo@kemsu.ru'
-        },
-        onLogoutButtonClick: logout,
-        onUsernameClick: () => redirectToOldIais('security/my/index.htm')
-    },
-    funcLayoutProps: {
-        topbarAdditionalInfo: () => (
-            <div style={{ marginRight: '28px' }}>
-                <div style={{ textDecoration: 'none', fontSize: '13.6px' }}>TODO: выводить факультет</div>
-            </div>
-        ),
-        username: getUserFullName
-    }
+export const appGenerator = makePageGenerator({ appName: 'dekanat', rootPageModule })
 
-})
+export { default as Layout } from 'share/eios/layout/Layout'
 
-export { default as Layout } from '../../share/layout/Layout'
+export const layoutProps = {
+    footerContactInfo: cnitContacts,
+    onLogoutButtonClick: logout,
+    onUsernameClick: () => redirectToOldIais('security/my/index.htm')
+}
+
+export const funcLayoutProps = {
+    topbarAdditionalInfo: () => (
+        <div style={{ marginRight: '28px' }}>
+            <div style={{ textDecoration: 'none', fontSize: '13.6px' }}>TODO: выводить факультет</div>
+        </div>
+    ),
+    username: getUserFullName
+}

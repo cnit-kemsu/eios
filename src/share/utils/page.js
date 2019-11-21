@@ -1,7 +1,9 @@
 import React from 'react'
-import { isAccessTokenValid, getUserInfo, checkAccessTo } from 'share/utils'
 import { Link } from '@kemsu/react-routing'
 import { Message } from '@kemsu/eios-ui'
+
+import { isAccessTokenValid, getUserInfo, checkAccessTo } from './auth'
+import { checkAuth } from './old-iais'
 
 
 const NeedAuthMessage = () => (
@@ -28,48 +30,72 @@ const ClosedAccessMessage = () => (
     </Message>
 )
 
-export function makeAppPageGenerator(appName, defaultPageModule, defaultProps) {
+export function makeAppGenerator(App, { secure, ignoreNotChangedPassword }) {
     return async () => {
+        const checkResult = await performAuthСheck({ secure, ignoreNotChangedPassword })
+        if (checkResult === true) return ({ default: App })
+        return ({ default: checkResult })
+    }
+}
 
-        let pageModule
+/**
+ * Проверяет авторизацию пользователя на iais, затем проверяет доступ в соотвествии с объектом secure.
+ * В случае, если в iais пользователь не авторизован, произойдет выход и страница перезагрузится
+ * Если проверка secure не пройдет, то вернется React-элемент с сообщением, почему у пользователя нет доступа.
+ * Иначе вернет true
+ */
+export async function performAuthСheck({ secure, ignoreNotChangedPassword } = {}) {
 
-        if (location.pathname === `/${appName}`) pageModule = defaultPageModule
-        else pageModule = await import(`../../apps/${appName}/${location.pathname.split('/').slice(2).join('/')}/index.js`)
+    await checkAuth()
 
-        let { pageProps: { secure, ignoreNotChangedPassword } = {} } = pageModule
+    if (typeof secure === 'function') secure = secure()
+    if (secure ?.then) secure = await secure
 
-        if (typeof secure === 'function') secure = secure()
-        if (secure ?.then) secure = await secure
+    if (secure) {
 
-        if (secure) {
+        let userInfo = getUserInfo()
 
-            let userInfo = getUserInfo()
-
-            if (!isAccessTokenValid()) {
-                return {
-                    'default': NeedAuthMessage
-                }
-            } else if (secure === true && !ignoreNotChangedPassword && userInfo.blocked === 2) {
-                return {
-                    'default': NeedChangedPasswordMessage
-                }
-            } else if (secure === false) {
-                return {
-                    'default': ClosedAccessMessage
-                }
-            } else if (typeof secure === 'object' && !(await checkAccessTo(secure))) {
-                return {
-                    'default': NoAccessMessage
-                }
-            }
+        if (!isAccessTokenValid()) {
+            return NeedAuthMessage
+        } else if (secure === true && !ignoreNotChangedPassword && userInfo.blocked === 2) {
+            return NeedChangedPasswordMessage
+        } else if (secure === false) {
+            return ClosedAccessMessage
+        } else if (typeof secure === 'object' && !(await checkAccessTo(secure))) {
+            return NoAccessMessage
         }
+    }
 
-        const { layoutProps: defaultLayoutProps, funcLayoutProps: defaultFuncLayoutProps } = defaultProps || {}
+    return true
+}
+
+function makePageLoader(appName, defaultPageModule) {
+    return () => {
+        if (location.pathname === `/${appName}`) return defaultPageModule
+        else return import(`../../apps/${appName}/${location.pathname.split('/').slice(2).join('/')}/index.js`)
+    }
+}
+
+export function makePageGenerator(appName, rootPageModule/*, defaultProps*/) {
+    return async () => {
+        
+        const loader = makePageLoader(appName, rootPageModule)        
+
+        let pageModule = loader()
+        if (pageModule.then) pageModule = await pageModule
+
+        let { pageProps } = pageModule
+
+        let checkResult = await performAuthСheck(pageProps)
+
+        if (checkResult !== true) return { default: checkResult }
+
+        //const { layoutProps: defaultLayoutProps, funcLayoutProps: defaultFuncLayoutProps } = defaultProps || {}
 
         pageModule = {
-            default: pageModule.default,
-            layoutProps: Object.assign({}, defaultLayoutProps, pageModule.layoutProps),
-            funcLayoutProps: Object.assign({}, defaultFuncLayoutProps, pageModule.funcLayoutProps)
+            default: pageModule.default || pageModule.Page,
+            layoutProps: Object.assign({}, /*defaultLayoutProps,*/ pageModule.layoutProps),
+            funcLayoutProps: Object.assign({}, /*defaultFuncLayoutProps,*/ pageModule.funcLayoutProps)
         }
 
         return pageModule

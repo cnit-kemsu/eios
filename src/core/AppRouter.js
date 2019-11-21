@@ -44,36 +44,39 @@ export default function AppRouter({ setError, appName }) {
         (async () => {
             try {
 
+                // импортируем модуль приложения
                 let appModule = await import(
                     /* webpackMode: "lazy-once" */
                     /* webpackChunkName: "apps" */
                     `../apps/${appName}/index.js`
                 )
 
+                // при наличии, считываем свойства макета из модуля
                 let layoutProps = await getLayoutPropsFromModule(appModule)
 
-                if (!appModule.default && !appModule.getAppPage) throw new InvalidAppModuleError('Модуль приложения должен экспортировать либо компонент (экспорт по умолчанию), либо функцию getPageApp (именованный экспорт)')
+                // если была экспортирована функция appGenerator, загружаем с ее помощью модуль приложения
+                if (appModule.appGenerator) {
 
-
-                if (appModule.getAppPage) {
-                    let pageModule = appModule.getAppPage()
-
+                    let pageModule = appModule.appGenerator()
+                    // функция может быть асинхронной
                     if (pageModule.then) pageModule = await pageModule
 
-                    if (!pageModule.default) throw new InvalidAppModuleError('Модуль страницы приложения должен экспортировать компонент (экспорт по умолчанию)')
-
+                    // загружаем свойства макета, если они есть
                     const pageLayoutProps = await getLayoutPropsFromModule(pageModule)
 
+                    // сам макет
                     if (pageModule.Layout) appModule.Layout = pageModule.Layout
-                    layoutProps = Object.assign({}, layoutProps, pageLayoutProps)
 
-                    appModule.default = pageModule.default
+                    layoutProps = Object.assign({}, layoutProps, pageLayoutProps)
+                    appModule.default = pageModule.default || pageModule.Page
                 }
 
+                if (!appModule.default && !appModule.App && !appModule.Page) throw new InvalidAppModuleError('Модуль приложения (страницы) должен содержать компонент, экспортированный по умолчанию или с помощью именованного экспорта с именем App или Page')
+
                 if (appModule.Layout) {
-                    setState({ App: appModule.default, Layout: appModule.Layout, layoutProps })
+                    setState({ App: appModule.default || appModule.App || !appModule.Page, Layout: appModule.Layout, layoutProps })
                 } else if (Layout) {
-                    setState({ ...stateInitialValue, App: appModule.default, })
+                    setState({ ...stateInitialValue, App: appModule.default || appModule.App || !appModule.Page })
                 }
 
             } catch (err) {

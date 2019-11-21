@@ -1,4 +1,23 @@
 
+import { logout, getUserInfo, isAccessTokenValid } from './auth'
+
+// Для синхронизации с авторизацией в iais + проверка истечения токена
+export async function checkAuth() {
+
+    let auth = await checkAuthInOldIais()
+
+    if (getUserInfo() && (!isAccessTokenValid() || !auth || (+auth) === -1)) {
+        logout()
+        location.reload()
+    }
+}
+
+// Для запуска синхронизации с авторизацией в iais
+export function startSyncWithOldIais() {
+    setInterval(() => {
+        checkAuth()
+    }, 90000)
+}
 
 export function getUrlForOldIais(path, search, https) {
 
@@ -26,7 +45,7 @@ export function requestToOldIais(url, search, onLoad, https) {
     document.body.appendChild(iframe)
 }
 
-export function redirectToOldIais(url, search, https) {    
+export function redirectToOldIais(url, search, https) {
     window.open(getUrlForOldIais(url, search, https), '_blank')
 }
 
@@ -39,7 +58,7 @@ export function checkAuthInOldIais() {
         iframe.src = 'https://niais2.kemsu.ru/dekanat/eios-next-sync/check-auth.htm'
         document.body.appendChild(iframe)
 
-        let handler = e => {            
+        let handler = e => {
             resolve(e.data)
             iframe.parentNode.removeChild(iframe)
             window.removeEventListener('message', handler)

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { useFadeTransition } from '../../hooks'
+import { useFadeTransition } from 'share/hooks'
 
 import { rootCss, fadeInCss, fadeOutCss } from './style'
 

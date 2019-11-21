@@ -4,6 +4,15 @@ import { HistoryManager } from '@kemsu/react-routing'
 import { requestToOldIais } from './old-iais'
 import { apiUriPrefix, fetchApi } from './api'
 
+export function userInfoExists() {
+    return !!localStorage.getItem('userInfo')
+}
+
+export function userIsStudent() {
+    const userInfo = getUserInfo()       
+    return userInfo?.userType === 'обучающийся'
+}
+
 
 export function getAccessToken() {
     return localStorage.getItem('accessToken')
