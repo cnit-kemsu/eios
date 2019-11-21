@@ -76,7 +76,7 @@ function makePageLoader(appName, defaultPageModule) {
     }
 }
 
-export function makePageGenerator(appName, rootPageModule/*, defaultProps*/) {
+export function makePageGenerator(appName, rootPageModule) {
     return async () => {
         
         const loader = makePageLoader(appName, rootPageModule)        
@@ -88,14 +88,12 @@ export function makePageGenerator(appName, rootPageModule/*, defaultProps*/) {
 
         let checkResult = await performAuthСheck(pageProps)
 
-        if (checkResult !== true) return { default: checkResult }
-
-        //const { layoutProps: defaultLayoutProps, funcLayoutProps: defaultFuncLayoutProps } = defaultProps || {}
+        if (checkResult !== true) return { default: checkResult }        
 
         pageModule = {
             default: pageModule.default || pageModule.Page,
-            layoutProps: Object.assign({}, /*defaultLayoutProps,*/ pageModule.layoutProps),
-            funcLayoutProps: Object.assign({}, /*defaultFuncLayoutProps,*/ pageModule.funcLayoutProps)
+            layoutProps: pageModule.layoutProps,
+            funcLayoutProps: pageModule.funcLayoutProps
         }
 
         return pageModule

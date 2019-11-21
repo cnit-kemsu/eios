@@ -6,7 +6,7 @@ import { cnitContacts } from 'share/eios/cnitContacts'
 import * as rootPageModule from './DekanatPage'
 
 
-export const appGenerator = makePageGenerator({ appName: 'dekanat', rootPageModule })
+export const appGenerator = makePageGenerator('dekanat', rootPageModule)
 
 export { default as Layout } from 'share/eios/layout/Layout'
 
