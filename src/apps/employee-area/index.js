@@ -57,7 +57,7 @@ const containerCss = css`
     
     & > div {
         margin-top: 21px;
-        &:first-child {
+        &:first-of-type {
             margin-top: 0px;
         }
     }
