@@ -1,11 +1,17 @@
 import React from 'react'
-import jquery from 'jquery'
 
-console.log(jquery('body'))
+import { useAuth, Auth } from 'share/eios/Auth'
 
-export default function ExampleApp() {
+
+export function App() {
+
+    console.log('ExampleApp')
+
+    const auth = useAuth({ secure: true })
 
     return (
-        <div>TODO: Add examples</div>
+        <Auth {...auth} redirect>
+            <div>TODO: Add examples</div>
+        </Auth>
     )
 }
