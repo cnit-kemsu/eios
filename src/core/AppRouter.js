@@ -79,11 +79,11 @@ export default function AppRouter({ setError, appName }) {
                     setState({ ...stateInitialValue, App: appModule.default || appModule.App || !appModule.Page })
                 }
 
-            } catch (err) {
-                if (err instanceof InvalidAppModuleError) {
-                    setError(err.message)
-                } else {
+            } catch (err) {                
+                if (err.code === 'MODULE_NOT_FOUND') {
                     setState({ App: Page404, Layout: Fragment, layoutProps: {} })
+                } else {
+                    setError(err.message)
                 }
             }
         })()
