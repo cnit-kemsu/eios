@@ -13,7 +13,6 @@ export function userIsStudent() {
     return userInfo?.userType === 'обучающийся'
 }
 
-
 export function getAccessToken() {
     return localStorage.getItem('accessToken')
 }
@@ -62,7 +61,7 @@ export function logout() {
 
     requestToOldIais('restricted/logoff.htm', null, () => {
 
-        if (location.pathname == '/home') location.reload()
+        if (location.pathname == '/home') location = '/home'
         else {
             HistoryManager.push('/home')
         }
