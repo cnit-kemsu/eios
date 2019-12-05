@@ -19,12 +19,15 @@ module.exports = {
     },
     "parser": "babel-eslint",
     "plugins": [
-        "react"        
+        "react",
+        "react-hooks"
     ],
     "rules": {
         "react/jsx-uses-react": 1,
         "react/jsx-uses-vars": 1,
         "react/react-in-jsx-scope": 1,
-        "no-unused-vars": 1
+        "no-unused-vars": 1,
+        "react-hooks/rules-of-hooks": 1,
+        "react-hooks/exhaustive-deps": 1
     }
 };

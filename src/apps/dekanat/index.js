@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { makePageGenerator, getUserFullName, logout, redirectToOldIais } from 'share/utils'
+import { makePageGenerator, getUserFullName, logout, redirectToOldIais, getFacultyInfo } from 'share/utils'
 import { cnitContacts } from 'share/eios/cnitContacts'
 
 import * as rootPageModule from './DekanatPage'
@@ -17,10 +17,6 @@ export const layoutProps = {
 }
 
 export const funcLayoutProps = {
-    topbarAdditionalInfo: () => (
-        <div style={{ marginRight: '28px' }}>
-            <div style={{ textDecoration: 'none', fontSize: '13.6px' }}>TODO: выводить факультет</div>
-        </div>
-    ),
+    topbarAdditionalInfo: () => getFacultyInfo()?.name || "",
     username: getUserFullName
 }

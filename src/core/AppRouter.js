@@ -4,24 +4,20 @@ import Page404 from './Page404'
 const stateInitialValue = { App: () => 'Загрузка...', Layout: Fragment, layoutProps: {} }
 
 
-async function getLayoutPropsFromModule(module) {
+async function getLayoutPropsFromModule(module, forceUpdate) {
 
     const summaryLayoutProps = module.layoutProps || {}
-    const asyncLayoutProps = module.asyncLayoutProps || {}
     const funcLayoutProps = module.funcLayoutProps || {}
-
-    for (const [propName, propValue] of Object.entries(asyncLayoutProps)) {
-
-        if (typeof propValue !== 'function') throw new Error('Значения полей asyncLayoutProps должны быть асинхронными функциями')
-
-        summaryLayoutProps[propName] = await propValue()
-    }
 
     for (const [propName, propValue] of Object.entries(funcLayoutProps)) {
 
         if (typeof propValue !== 'function') throw new Error('Значения полей funcLayoutProps должны быть функциями')
 
-        summaryLayoutProps[propName] = propValue(summaryLayoutProps)
+        let result = propValue(summaryLayoutProps, forceUpdate)
+
+        if (result?.then) result = await result
+
+        summaryLayoutProps[propName] = result
     }
 
     return summaryLayoutProps
@@ -38,6 +34,8 @@ export default function AppRouter({ setError, appName }) {
         stateInitialValue
     )
 
+    const [forceUpdateState, forceUpdate] = useReducer(() => ({}))
+
     const setLayoutProps = useCallback((layoutProps) => setState({ layoutProps }), [setState])
 
     useEffect(() => {
@@ -52,7 +50,7 @@ export default function AppRouter({ setError, appName }) {
                 )
 
                 // при наличии, считываем свойства макета из модуля
-                let layoutProps = await getLayoutPropsFromModule(appModule)
+                let layoutProps = await getLayoutPropsFromModule(appModule, forceUpdate)
 
                 // если была экспортирована функция appGenerator, загружаем с ее помощью модуль приложения
                 if (appModule.appGenerator) {
@@ -62,7 +60,7 @@ export default function AppRouter({ setError, appName }) {
                     if (pageModule.then) pageModule = await pageModule
 
                     // загружаем свойства макета, если они есть
-                    const pageLayoutProps = await getLayoutPropsFromModule(pageModule)
+                    const pageLayoutProps = await getLayoutPropsFromModule(pageModule, forceUpdate)
 
                     // сам макет
                     if (pageModule.Layout) appModule.Layout = pageModule.Layout
@@ -79,7 +77,7 @@ export default function AppRouter({ setError, appName }) {
                     setState({ ...stateInitialValue, App: appModule.default || appModule.App || !appModule.Page })
                 }
 
-            } catch (err) {                
+            } catch (err) {
                 if (err.code === 'MODULE_NOT_FOUND') {
                     setState({ App: Page404, Layout: Fragment, layoutProps: {} })
                 } else {
@@ -89,13 +87,13 @@ export default function AppRouter({ setError, appName }) {
         })()
 
 
-    }, [location.pathname])
+    }, [location.pathname, forceUpdateState, setState])
 
     if (Layout !== Fragment) layoutProps['setError'] = setError
 
     return (
         <Layout {...layoutProps}>
-            <App setError={setError} appName={appName} setLayoutProps={setLayoutProps} />
+            <App forceUpdateApp={forceUpdate} setError={setError} appName={appName} setLayoutProps={setLayoutProps} />
         </Layout>
     )
 }

@@ -39,7 +39,9 @@ export default function Topbar({ links, hide, additionalInfo }) {
                 })}
             </nav>
             <div>
-                {additionalInfo}
+                <div style={{ marginRight: '28px' }}>
+                    <div style={{ textDecoration: 'none', fontSize: '13.6px' }}>{additionalInfo}</div>
+                </div>
             </div>
         </div>
     )

@@ -30,6 +30,7 @@ export default function Layout({
     username,
     onUsernameClick,
     onLogoutButtonClick,
+    backUrl,
     children
 }) {
 
@@ -45,7 +46,7 @@ export default function Layout({
                 logoSize={logoSize} logoText={logoText} logoUrl={logoUrl} orgUrl={orgUrl}
                 orgName={orgName} title={title} titleUrl={titleUrl} subtitle={subtitle} height={headerHeight} />
             <div css={horizontalBlockCss}>
-                <Sidebar logoText={logoText} logoSize={logoSize} hide={hideSidebar} height={headerHeight} links={sidebarLinks} />
+                <Sidebar backUrl={backUrl} logoText={logoText} logoSize={logoSize} hide={hideSidebar} height={headerHeight} links={sidebarLinks} />
                 <div css={verticalBlockCss}>
                     <Topbar additionalInfo={topbarAdditionalInfo} hide={hideTopbar} links={topbarLinks} />
                     <AppContent>{children}</AppContent>

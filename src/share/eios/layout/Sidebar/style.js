@@ -103,7 +103,7 @@ export const navLinkCss = css`
 
 export const navLinkContainerCss = css`
 
-    a {
+    div, a {
         color: white;
     }
 
@@ -128,4 +128,10 @@ export const forumBtnContainerCss = css`
     align-items: center;
     flex-direction: column;
     margin-bottom: 36px; 
+`
+
+export const backButtonContainerCss = css`
+    display: flex;
+    align-items: center;
+    height: 64.8px;
 `
