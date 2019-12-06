@@ -2,7 +2,7 @@ import React from 'react'
 import { Helmet } from 'react-helmet'
 import { css } from '@emotion/core'
 
-import { userIsStudent } from 'share/utils'
+import { userIsStudent, makeAppGenerator } from 'share/utils'
 
 
 const studManuals = [
@@ -27,7 +27,7 @@ const linkCss = css`
     }
 `
 
-export function App() {
+export const appGenerator = makeAppGenerator(() => {
 
     const isStudent = userIsStudent()
 
@@ -61,6 +61,6 @@ export function App() {
             </div>
         </>
     )
-}
+}, { ignoreNotChangedPassword: true })
 
 export { default as Layout } from 'share/eios/layout/Layout'
