@@ -53,7 +53,8 @@ export async function performAuthСheck({ secure, ignoreNotChangedPassword } = {
 
     if (secure) {
 
-        let userInfo = getUserInfo()
+        const userInfo = getUserInfo()
+        const errorMessage = secure.errorMessage
 
         if (!isAccessTokenValid()) {
             return NeedAuthMessage
@@ -62,7 +63,7 @@ export async function performAuthСheck({ secure, ignoreNotChangedPassword } = {
         } else if (secure === false) {
             return ClosedAccessMessage
         } else if (typeof secure === 'object' && !(await checkAccessTo(secure))) {
-            return NoAccessMessage
+            return errorMessage ? () => <Message type="error">{errorMessage}</Message> : NoAccessMessage
         }
     }
 
@@ -78,8 +79,8 @@ function makePageLoader(appName, defaultPageModule) {
 
 export function makePageGenerator(appName, rootPageModule) {
     return async () => {
-        
-        const loader = makePageLoader(appName, rootPageModule)        
+
+        const loader = makePageLoader(appName, rootPageModule)
 
         let pageModule = loader()
         if (pageModule.then) pageModule = await pageModule
@@ -88,7 +89,7 @@ export function makePageGenerator(appName, rootPageModule) {
 
         let checkResult = await performAuthСheck(pageProps)
 
-        if (checkResult !== true) return { default: checkResult }        
+        if (checkResult !== true) return { default: checkResult }
 
         pageModule = {
             default: pageModule.default || pageModule.Page,
