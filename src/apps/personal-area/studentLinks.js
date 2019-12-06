@@ -5,13 +5,13 @@ export const getStudentLinks = ({ facultyId, graduateFlag }) => [
     {
         target: '_blank', title: 'Образовательные программы:', sublinks: [
             { target: '_blank', ext: true, title: 'Реализуемые программы', url: 'https://kemsu.ru/education/educational-programs/', contact: contacts.webProjCenter },
-            { title: 'Пакет документов для лицензирования', url: '/a/eios/personal-area/lic-doc-package', contact: contacts.webProjCenter }
+            { title: 'Пакет документов для лицензирования', url: '/lic-doc-package', contact: contacts.webProjCenter }
         ], contact: contacts.webProjCenter
     },
     { target: '_blank', url: 'https://kemsu.ru/education/schedule/', ext: true, title: 'Расписание занятий/сессий', contact: contacts.webProjCenter },
     { target: '_blank', url: 'http://www.kemsu.ru/', ext: true, title: 'Официальный сайт КемГУ', contact: contacts.webProjCenter },
 
-    { url: '/a/eios/student-area/rating', title: 'Рейтинг обучающихся (БРС)', contact: contacts.cnitSupp },
+    { url: '/student-area/rating', title: 'Рейтинг обучающихся (БРС)', contact: contacts.cnitSupp },
     { url: getUrlForOldIais('proc/stud/'), ext: true, title: 'Информационное обеспечение учебного процесса (ИнфОУПро)', contact: contacts.cnitSupp },
     { target: '_blank', url: 'http://moodle.kemsu.ru/', ext: true, title: 'Cистема управления курсами (Moodle)', contact: contacts.cnitSupp },
     { url: getUrlForOldIais('tests'), ext: true, title: 'Система компьютерного адаптивного тестирования (СКАТ)', contact: contacts.cnitSupp },
