@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet'
-import { Pane, Table, Spinner } from '@kemsu/eios-ui'
+import { Pane, Table, Message } from '@kemsu/eios-ui'
 
 import { getFacultyInfo, getUrlForOldIais, fetchApi } from 'share/utils'
 import Loading from 'share/eios/Loading'
@@ -19,6 +19,7 @@ const StatisticItem = (({ title, value }) => (
 export function Page({ setError }) {
 
     const facultyInfo = getFacultyInfo()
+
     const title = facultyInfo ?.isFaculty ? 'Факультет' : 'Институт'
 
     const [statistics, setStatistics] = useState([])
@@ -30,7 +31,9 @@ export function Page({ setError }) {
 
         (async () => {
 
-            const { id } = getFacultyInfo()
+            if(!facultyInfo) return
+
+            const { id } = facultyInfo
 
             try {
 
@@ -46,7 +49,11 @@ export function Page({ setError }) {
 
         })()
 
-    }, [setStatistics, setReminders, setLoadingReminder])
+    }, [setError, facultyInfo])
+
+    if (!facultyInfo) {
+        return <Message type="warning">Не выбран институт/факультет!</Message>
+    }
 
     return (
         <>
@@ -115,24 +122,26 @@ export const pageProps = {
 
         const facultyInfo = getFacultyInfo()
 
+
         return {
             object: 'iais:dekanat',
-            restriction: { name: "facultyId", value: facultyInfo ?.id }
+            restriction: { name: "facultyId", value: facultyInfo ?.id },
+            errorMessage: `У вас нет доступа к выбранному институту/факультету (${facultyInfo.name})!`
         }
     }
 }
 
 export const layoutProps = {
     sidebarLinks: [
-        { /*target: '_blank',*/ ext: true, title: 'Учебные планы', url: getUrlForOldIais('dekanat/plan_fgos2/index.htm') },
-        { /*target: '_blank',*/ ext: true, title: 'Учебные планы ФГОС3', url: getUrlForOldIais('dekanat/plan/index.htm') },
-        { /*target: '_blank',*/ ext: true, title: 'Личные карты', url: getUrlForOldIais('dekanat/pers_card/index.htm') },
-        { /*target: '_blank',*/ ext: true, title: 'Учебные карты', url: getUrlForOldIais('dekanat/learn/index.htm') },
-        { /*target: '_blank',*/ ext: true, title: 'Сессия', url: getUrlForOldIais('dekanat/sess/index.htm') },
-        { /*target: '_blank',*/ ext: true, title: 'Отчеты', url: getUrlForOldIais('dekanat/otch/index.htm') },
-        { /*target: '_blank',*/ ext: true, title: 'Операции', url: getUrlForOldIais('dekanat/oper/index.htm') },
-        { /*target: '_blank',*/ ext: true, title: 'Группы', url: getUrlForOldIais('dekanat/group/index.htm') },
-        { /*target: '_blank',*/ ext: true, title: 'Итоговая аттестация', url: getUrlForOldIais('dekanat/5/index.htm') },
+        { ext: true, title: 'Учебные планы', url: getUrlForOldIais('dekanat/plan_fgos2/index.htm') },
+        { ext: true, title: 'Учебные планы ФГОС3', url: getUrlForOldIais('dekanat/plan/index.htm') },
+        { ext: true, title: 'Личные карты', url: getUrlForOldIais('dekanat/pers_card/index.htm') },
+        { ext: true, title: 'Учебные карты', url: getUrlForOldIais('dekanat/learn/index.htm') },
+        { ext: true, title: 'Сессия', url: getUrlForOldIais('dekanat/sess/index.htm') },
+        { ext: true, title: 'Отчеты', url: getUrlForOldIais('dekanat/otch/index.htm') },
+        { ext: true, title: 'Операции', url: getUrlForOldIais('dekanat/oper/index.htm') },
+        { ext: true, title: 'Группы', url: getUrlForOldIais('dekanat/group/index.htm') },
+        { ext: true, title: 'Итоговая аттестация', url: getUrlForOldIais('dekanat/5/index.htm') },
         { title: "Импорт плана", url: "/dekanat/faculty/import-plan" }
     ]
 }
