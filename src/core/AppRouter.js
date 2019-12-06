@@ -87,7 +87,8 @@ export default function AppRouter({ setError, appName }) {
         })()
 
 
-    }, [location.pathname, forceUpdateState, setState])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [location.pathname, forceUpdateState, setState, Layout, appName, setError])
 
     if (Layout !== Fragment) layoutProps['setError'] = setError
 
