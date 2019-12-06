@@ -38,15 +38,16 @@ export default function DekanatPage() {
 
     const list = useList(facultyInfo ?.id, onChangeList)    
 
-    useEffect(() => {
+    useEffect(() => {        
 
         (async () => {
 
             let result, resultExtr;
+            
 
-            if (showFaculties) {
-                result = await fetchApi('dekanat/faculties')
-                resultExtr = await fetchApi('dekanat/faculties?extramural')
+            if (showFaculties) {                
+                result = await fetchApi('dekanat/faculties')                
+                resultExtr = await fetchApi('dekanat/faculties?extramural')                
 
                 result = convertApiData(await result.json())
                 resultExtr = convertApiData(await resultExtr.json())
@@ -93,6 +94,10 @@ export default function DekanatPage() {
             </div>
         </>
     )
+}
+
+export const pageProps = {
+    secure: true
 }
 
 export const layoutProps = {
