@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet'
 import { Pane, Table, Message } from '@kemsu/eios-ui'
 
-import { getFacultyInfo, getUrlForOldIais, fetchApi } from 'share/utils'
+import { getFacultyInfo, getUrlForOldIais, fetchDevApi as fetchApi } from 'share/utils'
 import Loading from 'share/eios/Loading'
 
 import { statisticItemCss, statisticsContainerCss, remindersCss } from './style'
@@ -27,7 +27,9 @@ export function Page({ setError }) {
 
     const [loadingReminders, setLoadingReminder] = useState(true)
 
-    useEffect(() => {
+    useEffect(() => {        
+
+        const facultyInfo = getFacultyInfo();
 
         (async () => {
 
@@ -48,8 +50,9 @@ export function Page({ setError }) {
             }
 
         })()
-
-    }, [setError, facultyInfo])
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     if (!facultyInfo) {
         return <Message type="warning">Не выбран институт/факультет!</Message>
