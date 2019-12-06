@@ -18,7 +18,7 @@ export function useFadeTransition(content, fadeInEmotionCss, fadeOutEmotionCss, 
             setTransitionContent(prevContent)
         }
 
-    }, [contentChanged])
+    }, [contentChanged, prevContent, transitionContent])
 
     const targetChildren = contentChanged || transitionContent ? transitionContent || prevContent : content
     const css = [...toArray(emotionCss), contentChanged || transitionContent ? fadeOutEmotionCss : fadeInEmotionCss]
