@@ -26,6 +26,7 @@ export const appGenerator = makeAppGenerator(() => {
             setGraduateFlag(graduateFlag)
 
         })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [getUserInfo() ?.id])
 
     if (!userInfoExists()) return null
