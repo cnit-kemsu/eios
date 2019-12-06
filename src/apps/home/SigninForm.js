@@ -73,7 +73,8 @@ export default function SigninForm({ onMessage, setError }) {
             }
         }
 
-    }, [setAuthInProgress])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const username = useTextField()
     const password = useTextField()
