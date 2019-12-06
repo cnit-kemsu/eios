@@ -1,43 +1,28 @@
 import React, { useReducer, useEffect, useRef, useCallback } from 'react'
-import { css } from '@emotion/core'
 import {
     Select, Message, Button, Checkbox, useSelect
 } from '@kemsu/eios-ui'
 import $ from 'jquery'
 
+
+import { DataRow } from 'share/eios/DataRow'
 import { fetchApi, syncWithOldIais } from 'share/utils'
 import Loading from 'share/eios/Loading'
 
 import importPlan from './import'
 
 
-const infoRowCss = css`
-    display: flex;
-    align-items: center;
-    padding: 4px 0px;    
-`
-
-const InfoRow = ({ title, content, children }) => (
-    <div css={infoRowCss}>
-        <div style={{ fontWeight: 'bold', width: '300px' }}>{title}</div>
-        <div>{content || children}</div>
-    </div>
-)
-
-function convertDate(dateStr) {
-    let date = new Date(dateStr)
-    return `${date.getDate().toString().padStart(2, "0")}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getFullYear()}`
-}
+const InfoRow = (props) => <DataRow {...props} style={{ padding: '4px 0px' }} titleStyle={{ width: '300px' }} />
 
 export function Page({ setError }) {
 
     const [state, setState] = useReducer((prevState, newState) => ({ ...prevState, ...newState }), {
-        specializations: [{value: '', content: '- выберите -'}],
+        specializations: [{ value: '', content: '- отсутствует -' }],
         planTypes: []
     })
 
     const specSelect = useSelect("")
-    const { value, ...planTypeSelect } = useSelect()
+    const { value: planType, ...planTypeSelect } = useSelect()
 
     const {
         invalidStandard,
@@ -45,21 +30,10 @@ export function Page({ setError }) {
         planId,
         specializations,
         planTypes,
-        studyYears,
         message,
         messageType,
-
-        specialization,
-        planType,
-        studyTerm,
-
         importing,
-
         nextBtnClicked,
-
-        startDate,
-        endDate,
-
         needConfirmImport,
         forcedImport
     } = state
@@ -68,6 +42,7 @@ export function Page({ setError }) {
         (async () => {
 
             try {
+                // Считываем выбранный в iais стандарт
                 let planId = await syncWithOldIais('get-plan-standard')
 
                 if (!planId) {
@@ -75,6 +50,7 @@ export function Page({ setError }) {
                     return
                 }
 
+                // Проверяем, чтобы у всех блоков стандарта были указаны часы и зеты
                 let response = await fetchApi(`dekanat/plans/check-plan/${planId}`, null, true, true)
 
                 let invalidStandard = !(await response.json())
@@ -84,43 +60,55 @@ export function Page({ setError }) {
                     return
                 }
 
+                // Загружаем данные плана
                 response = await fetchApi(`dekanat/plans/${planId}`, null, true, true)
                 let plan = await response.json()
 
+                // Загружаем список специализаций
                 response = await fetchApi(`dekanat/specialities/${plan.SPECIALITY_ID}/specializations`, null, true, true)
                 let specializations = await response.json()
 
+                // Загружаем список видов плана
                 response = await fetchApi(`dekanat/plans/types`)
                 let planTypes = await response.json()
-
-                response = await fetchApi(`dekanat/plans/study-years`)
-                let studyYears = await response.json()
 
                 setState({
                     planId: planId,
                     plan: plan,
-                    specializations: [{ content: "- выберите -", value: "" }, ...specializations.map(s => ({
-                        content: s.TITLE, value: s.ID
-                    }))],
-                    planTypes: planTypes.map(t => ({ value: t.ID, content: t.TITLE })),
-                    studyYears: studyYears.map(sy => sy.YEARS),               
-                    studyTerm: studyYears[0].YEARS
+                    specializations: [
+                        { content: "- отсутствует -", value: "" },
+                        ...specializations.map(s => ({
+                            content: s.TITLE, value: s.ID
+                        }))
+                    ],
+                    planTypes: planTypes.map(t => ({ value: t.ID, content: t.TITLE }))
+
                 })
 
             } catch (err) {
                 setError(err)
             }
         })()
-    }, [])
+    }, [setError])
 
     const fileRef = useRef()
     const startDateRef = useRef()
     const endDateRef = useRef()
 
-    const changeStartDate = useCallback(e => setState({ startDate: convertDate(e.target.value) }), [])
-    const changeEndDate = useCallback(e => setState({ endDate: convertDate(e.target.value) }), [])
-    const clickNextBtn = useCallback(() => setState({ nextBtnClicked: true }), [])
-    const toggleForcedImport = useCallback(() => setState({ forcedImport: !forcedImport }), [])
+    const clickNextBtn = useCallback(() => {
+
+        if (!startDateRef.current.value || !endDateRef.current.value) {
+            setState({
+                message: "Не указан период обучения!",
+                messageType: "warning"
+            })
+            return
+        }
+
+        setState({ nextBtnClicked: true, message: null })
+
+    }, [])
+    const toggleForcedImport = useCallback(() => setState({ forcedImport: !forcedImport }), [forcedImport])
     const clickImportPlanBtn = useCallback(() => {
 
         if (!startDateRef.current.value || !endDateRef.current.value) {
@@ -131,18 +119,6 @@ export function Page({ setError }) {
             return
         }
 
-        //let startDate = new Date(startDateRef.current.value)
-        //let endDate = new Date(endDateRef.current.value)
-        //let diff = endDate.getFullYear() - startDate.getFullYear()
-
-        /*if (state.studyTerm < diff) {
-            setState({
-                message: "Сроки обучения меньше периода обучения!",
-                messageType: "warning"
-            })
-            return
-        }*/
-
         if (fileRef.current.files.length === 0) {
             setState({
                 message: "Файл не выбран!",
@@ -151,6 +127,15 @@ export function Page({ setError }) {
             return
         }
 
+        if (fileRef.current.files.length > 1) {
+            setState({
+                message: "Выбрано несколько файлов! Необходимо выбрать один.",
+                messageType: "warning"
+            })
+            return
+        }
+
+        // Парсим выбранный файл
         let reader = new FileReader()
         let xmlFile, type
 
@@ -162,13 +147,14 @@ export function Page({ setError }) {
                 xml = $($.parseXML(xml))
                 if (!xml) throw new Error()
             } catch (err) {
-                console.error(err)
                 setState({ message: "Некорректный файл!", messageType: "error" })
                 return;
             }
 
+            // Импортируем план
             await importPlan({
-                state,
+                startDateRef, endDateRef,
+                state: { ...state, specialization: specSelect.value, planType },
                 setState
             }, xml, type)
 
@@ -176,13 +162,13 @@ export function Page({ setError }) {
             setState({ importing: false })
         }
 
-        reader.onerror = function (event) {
-            console.error(event)
+        reader.onerror = () => {
             setState({ message: "Не удалось считать файл!", messageType: "error" })
         }
 
         xmlFile = fileRef.current.files[0]
 
+        // Определяем формат выбранного файла
         if (xmlFile.name.toLowerCase().endsWith('.xml')) {
             type = 'xml'
         } else if (xmlFile.name.toLowerCase().endsWith('.plx')) {
@@ -197,7 +183,8 @@ export function Page({ setError }) {
         setState({ message: null, messageType: null, importing: true, needConfirmImport: false })
 
         reader.readAsText(xmlFile)
-    }, [state])
+
+    }, [planType, specSelect.value, state])
 
     if (invalidStandard) {
         return (
@@ -207,7 +194,7 @@ export function Page({ setError }) {
                 </Message>
             </div>
         )
-    } 
+    }
 
     return (
         <div>
@@ -227,13 +214,13 @@ export function Page({ setError }) {
                         <Select {...specSelect} flat selectStyle={{ minWidth: "200px" }} disabled={importing} items={specializations} />
                     </InfoRow>
                     <InfoRow title="Дата начала обучения">
-                        <input style={{ minWidth: "200px", border: "1px solid #8a8a8a", height: "24px", padding: "2px" }} defaultValue="" onChange={changeStartDate} ref={startDateRef} disabled={importing} type="date" />
+                        <input style={{ minWidth: "200px", border: "1px solid #8a8a8a", height: "24px", padding: "2px" }} defaultValue="" ref={startDateRef} disabled={importing} type="date" />
                     </InfoRow>
                     <InfoRow title="Дата завершения обучения">
-                        <input style={{ minWidth: "200px", border: "1px solid #8a8a8a", height: "24px", padding: "2px" }} defaultValue="" onChange={changeEndDate} ref={endDateRef} disabled={importing} type="date" />
+                        <input style={{ minWidth: "200px", border: "1px solid #8a8a8a", height: "24px", padding: "2px" }} defaultValue="" ref={endDateRef} disabled={importing} type="date" />
                     </InfoRow>
                     <InfoRow title="Вид учебного плана">
-                        <Select value={value || planTypes[1] ?.value} {...planTypeSelect} flat selectStyle={{ minWidth: "200px" }} disabled={importing} items={planTypes} />
+                        <Select value={planType || planTypes[1] ?.value} {...planTypeSelect} flat selectStyle={{ minWidth: "200px" }} disabled={importing} items={planTypes} />
                     </InfoRow>
 
                     <br />
@@ -255,6 +242,8 @@ export function Page({ setError }) {
                 </>
             }
 
+            <br />
+
             <Loading loading={importing} title="Выполняется импортирование плана..." />
 
             {
@@ -273,6 +262,10 @@ export function Page({ setError }) {
 
         </div>
     )
+}
+
+export const pageProps = {
+    secure: true
 }
 
 export { default as Layout } from 'share/eios/layout/Layout'

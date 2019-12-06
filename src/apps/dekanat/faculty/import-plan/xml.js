@@ -3,21 +3,21 @@ import $ from 'jquery'
 
 export function getBlocksFrom(self, xml) {
 
-    var blockNodes = xml.find("АтрибутыЦикловНов Цикл"),
+    let blockNodes = xml.find("АтрибутыЦикловНов Цикл"),
         blocks = [];
 
     Array.prototype.forEach.call(blockNodes, (blockNode) => {
 
         blockNode = $(blockNode);
 
-        var code = blockNode.attr("Аббревиатура");
-        var name = blockNode.attr("Название");
+        let code = blockNode.attr("Аббревиатура");
+        let name = blockNode.attr("Название");
 
         if (!name) return;
 
         code = code || "Б4"
 
-        var isSubblock = code.split('.').length > 1
+        let isSubblock = code.split('.').length > 1
 
         blocks.push({
             code: code,
@@ -52,7 +52,7 @@ export function getPlanInfo(self, xml) {
 
 export function getPlanRowsFrom(self, xml) {
 
-    var planRowNodes = xml.find("СтрокиПлана Строка, ДиссерПодготовка ПрочаяПрактика"),
+    let planRowNodes = xml.find("СтрокиПлана Строка, ДиссерПодготовка ПрочаяПрактика"),
         planRows = [], giaCnt = 1
 
     Array.prototype.forEach.call(planRowNodes, (planRowNode) => {
@@ -60,13 +60,13 @@ export function getPlanRowsFrom(self, xml) {
 
         if (planRowNode.attr("ТипПрактики")) return;
 
-        var semNodes = planRowNode.find("Сем, Семестр, Курс Сессия"),
+        let semNodes = planRowNode.find("Сем, Семестр, Курс Сессия"),
             semesters = [];
 
         Array.prototype.forEach.call(semNodes, (semNode) => {
             semNode = $(semNode);
 
-            var reportTypeIds = [];
+            let reportTypeIds = [];
 
             if (semNode.attr("Экз")) {
                 reportTypeIds.push(112)
@@ -138,7 +138,7 @@ export function getPracticesFrom(self, xml, kind) {
         case 'Н': tagName = 'НИР'; break
     }
 
-    var planRowNodes = xml.find("СпецВидыРаботНов " + tagName + " ПрочаяПрактика"),
+    let planRowNodes = xml.find("СпецВидыРаботНов " + tagName + " ПрочаяПрактика"),
         planRows = []
 
     let planInfo = getPlanInfo(self, xml)
@@ -153,16 +153,15 @@ export function getPracticesFrom(self, xml, kind) {
     Array.prototype.forEach.call(planRowNodes, (planRowNode, index) => {
 
         planRowNode = $(planRowNode)
+        
 
-        var practiceType
-
-        var semNodes = planRowNode.find("Семестр"),
+        let semNodes = planRowNode.find("Семестр"),
             semesters = []
 
         Array.prototype.forEach.call(semNodes, (semNode) => {
             semNode = $(semNode);
 
-            var reportTypeIds = [];
+            let reportTypeIds = [];
 
             if (semNode.attr("Экз")) {
                 reportTypeIds.push(112)
@@ -201,30 +200,30 @@ export function getPracticesFrom(self, xml, kind) {
 }
 
 export function getGraphicFrom(self, xml) {
-    var courseNodes = xml.find("ГрафикУчПроцесса Курс")
-    var graphic = []
+    let courseNodes = xml.find("ГрафикУчПроцесса Курс")
+    let graphic = []
 
-    Array.prototype.forEach.call(courseNodes, (courseNode, index) => {
+    Array.prototype.forEach.call(courseNodes, (courseNode) => {
 
         courseNode = $(courseNode)
 
-        var semNodes = courseNode.find("Семестр")
-        var courseNum = courseNode.attr("Ном")
+        let semNodes = courseNode.find("Семестр")
+        let courseNum = courseNode.attr("Ном")
 
         Array.prototype.forEach.call(semNodes, (semNode) => {
 
             semNode = $(semNode)
 
-            var semNum = semNode.attr("Ном")
-            var strNedTO = semNode.attr("СтрНедТО")
-            var intNedTO
-            var firstWeekNum = semNode.attr("НомерПервойНедели")
-            var firstElNum = semNode.attr("НомерПервогоЭлемента")
-            var graphicStrs = []
+            let semNum = semNode.attr("Ном")
+            let strNedTO = semNode.attr("СтрНедТО")
+            let intNedTO
+            let firstWeekNum = semNode.attr("НомерПервойНедели")
+            let firstElNum = semNode.attr("НомерПервогоЭлемента")
+            let graphicStrs = []
 
             graphicStrs.push(semNode.attr("График"))
-            for (var i = 2; i < 7; ++i) {
-                var str = semNode.attr("График" + i)
+            for (let i = 2; i < 7; ++i) {
+                let str = semNode.attr("График" + i)
                 if (str) {
                     graphicStrs.push(str)
                 } else {
@@ -233,9 +232,9 @@ export function getGraphicFrom(self, xml) {
             }
 
             if (strNedTO) {
-                var cel_ned = "";
-                var ostat = "";
-                var probel = false;
+                let cel_ned = "";
+                let ostat = "";
+                let probel = false;
                 for (let i = 0; i != strNedTO.length; i++) {
                     if (strNedTO[0] === ' ')
                         i++;
@@ -253,7 +252,7 @@ export function getGraphicFrom(self, xml) {
                     }
                 }
                 intNedTO = +cel_ned;
-                var t;
+                let t;
                 if (ostat.length != 0)
                     t = +ostat;
                 else t = 0;

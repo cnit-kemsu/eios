@@ -119,15 +119,9 @@ export function getPlanRowsFrom(self, xml) {
 
                 // Для ФГОС3++ вместо контрольной работы используется курсовой проект, поэтому здесь две проверки
                 if (hourNodes.filter("[КодВидаРаботы=6]").length || hourNodes.filter("[КодВидаРаботы=4]").length) {
-                    reportTypeIds.push(3978)
-                }
+                    reportTypeIds.push(3978)               }
 
-                /*let lecture = $(hourNodes.filter(`[КодВидаРаботы=101]`)[0]).attr("Количество")
-                let lab = $(hourNodes.filter(`[КодВидаРаботы=102]`)[0]).attr("Количество")
-                let pract = $(hourNodes.filter(`[КодВидаРаботы=103]`)[0]).attr("Количество")
-                let ksr = $(hourNodes.filter(`[КодВидаРаботы=108]`)[0]).attr("Количество")
-                let srs = $(hourNodes.filter(`[КодВидаРаботы=107]`)[0]).attr("Количество")
-                let zet = $(hourNodes.filter(`[КодВидаРаботы=50]`)[0]).attr("Количество")*/
+   
 
                 let lecture = getHour(hourNodes, $(xml.find('СправочникВидыРабот[Аббревиатура="Лек"]')).attr('Код'))
                 let lab = getHour(hourNodes, $(xml.find('СправочникВидыРабот[Аббревиатура="Лаб"]')).attr('Код'))
@@ -135,14 +129,6 @@ export function getPlanRowsFrom(self, xml) {
                 let ksr = getHour(hourNodes, $(xml.find('СправочникВидыРабот[Аббревиатура="КСР"]')).attr('Код'))
                 let srs = getHour(hourNodes, $(xml.find('СправочникВидыРабот[Аббревиатура="СР"]')).attr('Код'))
                 let zet = getHour(hourNodes, $(xml.find('СправочникВидыРабот[Аббревиатура="ЗЕТ"]')).attr('Код'))
-
-                //let kre, krkr, krpr, krgia, krkp
-
-                /*try { kre = $(hourNodes.filter(`[КодВидаРаботы=143]`)[0]).attr("Количество") } catch (e) { }
-                try { krkr = $(hourNodes.filter(`[КодВидаРаботы=144]`)[0]).attr("Количество") } catch (e) { }
-                try { krpr = $(hourNodes.filter(`[КодВидаРаботы=145]`)[0]).attr("Количество") } catch (e) { }
-                try { krgia = $(hourNodes.filter(`[КодВидаРаботы=146]`)[0]).attr("Количество") } catch (e) { }
-                try { krkp = $(hourNodes.filter(`[КодВидаРаботы=147]`)[0]).attr("Количество") } catch (e) { }*/
 
                 let kre = getHour(hourNodes, $(xml.find('СправочникВидыРабот[Аббревиатура="КРЭ"]')).attr('Код'))
                 let krkr = getHour(hourNodes, $(xml.find('СправочникВидыРабот[Аббревиатура="КРкр"]')).attr('Код'))
@@ -186,7 +172,7 @@ export function getPlanRowsFrom(self, xml) {
             code: code,
             cathedra: $(xml.find(`Кафедры[Код=${planRowNode.attr("КодКафедры")}]`)[0]).attr('Название'),
             semesters: semesters,
-            discTypeId: code.indexOf("ДВ") !== -1 ? (name === 'Элективные дисциплины по физической культуре и спорту' ? /*1249*/ 7540 : 780) : 206
+            discTypeId: code.indexOf("ДВ") !== -1 ? (name === 'Элективные дисциплины по физической культуре и спорту' ?  7540 : 780) : 206
         })
     })
 
@@ -211,7 +197,7 @@ export function getPracticesFrom(self, xml, kind) {
         case 'Г': kind = '16'; break
     }
 
-    var planRowNodes = xml.find(`ПланыСтроки[ВидПрактики=${kind}][ТипОбъекта=3]`),//.not("[ТипОбъекта=5]"),
+    var planRowNodes = xml.find(`ПланыСтроки[ВидПрактики=${kind}][ТипОбъекта=3]`),
         planRows = [];
 
     let planInfo = getPlanInfo(self, xml)
@@ -271,10 +257,7 @@ export function getPracticesFrom(self, xml, kind) {
                 try { krkr = $(hourNodes.filter(`[КодВидаРаботы=144]`)[0]).attr("Количество") } catch (e) { /* empty */ }
                 try { krpr = $(hourNodes.filter(`[КодВидаРаботы=145]`)[0]).attr("Количество") } catch (e) { /* empty */ }
                 try { krgia = $(hourNodes.filter(`[КодВидаРаботы=146]`)[0]).attr("Количество") } catch (e) { /* empty */ }
-                try { krkp = $(hourNodes.filter(`[КодВидаРаботы=147]`)[0]).attr("Количество") } catch (e) { /* empty */ }
-
-                /*let pract = $(hourNodes.filter(`[КодВидаРаботы=103]`)[0]).attr("Количество")
-                let zet = $(hourNodes.filter(`[КодВидаРаботы=50]`)[0]).attr("Количество")*/
+                try { krkp = $(hourNodes.filter(`[КодВидаРаботы=147]`)[0]).attr("Количество") } catch (e) { /* empty */ }                
 
                 semesters.push({
                     num: semester,
@@ -284,51 +267,11 @@ export function getPracticesFrom(self, xml, kind) {
                     ksr: ksr,
                     srs: srs,
                     zet: zet,
-                    kre, krkr, krpr, krgia, krkp,
-                    /*pract: pract,
-                    zet: zet,*/
+                    kre, krkr, krpr, krgia, krkp,                   
                     reportTypeIds: reportTypeIds
                 })
             }
-        }
-
-        /*let allHours = xml.find(`ПланыНовыеЧасы[КодОбъекта=${planRowNode.attr("Код")}]`)
-
-        let controlFormNodes = allHours
-            // Оставляем только Экзамены, Зачеты, Зачеты с оценкой, Курсовые и Контрольные
-            .filter('[КодВидаРаботы=1],[КодВидаРаботы=2],[КодВидаРаботы=3],[КодВидаРаботы=5],[КодВидаРаботы=6]'),
-            semesters = []
-
-        Array.prototype.forEach.call(controlFormNodes, (controlFormNode) => {
-
-            controlFormNode = $(controlFormNode);
-
-            var reportTypeId;
-
-            if (controlFormNode.attr("КодВидаРаботы") === "1") {
-                reportTypeId = 112
-            } else if (controlFormNode.attr("КодВидаРаботы") === "2") {
-                reportTypeId = 113
-            } else if (controlFormNode.attr("КодВидаРаботы") === "3") {
-                reportTypeId = 7581
-            } else if (controlFormNode.attr("КодВидаРаботы") === "5") {
-                reportTypeId = 277
-            } else if (controlFormNode.attr("КодВидаРаботы") === "6") {
-                reportTypeId = 3978
-            }
-
-            if (!reportTypeId) return
-
-            let pract = $(allHours.filter('[КодВидаРаботы=103]')[0]).attr("Количество")
-            let zet = $(allHours.filter('[КодВидаРаботы=50]')[0]).attr("Количество")
-
-            semesters.push({
-                num: ((+controlFormNode.attr("Курс")) - 1) * 2 + (+controlFormNode.attr("Семестр")),
-                pract: pract,
-                zet: zet,
-                reportTypeId: reportTypeId
-            });
-        })*/
+        }        
 
         let code = planRowNode.attr("ДисциплинаКод") || "";
 
