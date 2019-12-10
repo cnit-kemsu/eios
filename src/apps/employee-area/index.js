@@ -3,7 +3,7 @@ import { css } from '@emotion/core'
 
 import { employeePages } from 'share/eios/employeePages'
 import LinkList from 'share/eios/LinkList'
-import { getUrlForOldIais, makeAppGenerator, getUserFullName } from 'share/utils'
+import { getUrlForOldIais, makeAppGenerator, getUserFullName, logout } from 'share/utils'
 import { cnitContacts } from 'share/eios/cnitContacts'
 
 import { topbarLinks } from './links'
@@ -64,8 +64,7 @@ const containerCss = css`
 `
 
 export const appGenerator = makeAppGenerator(() => (
-    <div>
-        <h1>Кабинет сотрудника</h1>
+    <div>        
 
         <div css={containerCss}>
             <div>
@@ -95,6 +94,8 @@ export const appGenerator = makeAppGenerator(() => (
 })
 
 export const layoutProps = {
+    contentTitle: 'Кабинет сотрудника',
+    onLogoutButtonClick: logout,
     topbarLinks,
     sidebarLinks: employeePages('employee'),
     footerContactInfo: cnitContacts

@@ -1,4 +1,5 @@
 import React from 'react'
+import { Spinner } from '@kemsu/eios-ui'
 import { Link } from '@kemsu/react-routing'
 import { rootCss, dynRootCss, linkCss, fadeInLinkCss, fadeOutLinkCss } from './style'
 
@@ -14,7 +15,7 @@ function getMatchesNumber(prev = [], cur) {
     return i
 }
 
-export default function Topbar({ links, hide, additionalInfo }) {
+export default function Topbar({ links, hide, additionalInfo, loading }) {
 
     const prevLinks = usePrevious(links)
 
@@ -37,6 +38,9 @@ export default function Topbar({ links, hide, additionalInfo }) {
                         </span>
                     )
                 })}
+                <span style={{ paddingLeft: '1em' }}>
+                    {loading && <Spinner colorStyle='dark' style={{ width: '0.8em' }} />}
+                </span>
             </nav>
             <div>
                 <div style={{ marginRight: '28px' }}>

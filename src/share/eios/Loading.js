@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { css } from '@emotion/core'
 import { Spinner } from '@kemsu/eios-ui'
 
@@ -15,9 +15,17 @@ const spinnerContainerCss = css`
     width: 100%;
 `
 
-export default function Loading({ loading, spinnerSize, title, titleWidth, children }) {
+export default function Loading({ loading, spinnerSize, title, titleWidth, delay, children }) {
+
+    const [show, setShow] = useState(delay === 0 ? true : false)
+
+    useEffect(() => {
+        setTimeout(() => setShow(true), delay)
+    }, [delay])
 
     if (!loading) return children || null
+
+    if(!show) return
 
     return (
         <div css={rootCss}>
@@ -31,5 +39,6 @@ export default function Loading({ loading, spinnerSize, title, titleWidth, child
 
 Loading.defaultProps = {
     spinnerSize: '20px',
-    title: 'Загрузка...'
+    title: 'Загрузка...',
+    delay: 0
 }

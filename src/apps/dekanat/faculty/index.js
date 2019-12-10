@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { Helmet } from 'react-helmet'
 import { Pane, Table, Message } from '@kemsu/eios-ui'
 
 import { getFacultyInfo, getUrlForOldIais, fetchDevApi as fetchApi } from 'share/utils'
 import Loading from 'share/eios/Loading'
 
 import { statisticItemCss, statisticsContainerCss, remindersCss } from './style'
+import { topbarLinks } from './links'
 
 
 const StatisticItem = (({ title, value }) => (
@@ -18,22 +18,20 @@ const StatisticItem = (({ title, value }) => (
 
 export function Page({ setError }) {
 
-    const facultyInfo = getFacultyInfo()
-
-    const title = facultyInfo ?.isFaculty ? 'Факультет' : 'Институт'
+    const facultyInfo = getFacultyInfo()    
 
     const [statistics, setStatistics] = useState([])
     const [reminders, setReminders] = useState([])
 
     const [loadingReminders, setLoadingReminder] = useState(true)
 
-    useEffect(() => {        
+    useEffect(() => {
 
         const facultyInfo = getFacultyInfo();
 
         (async () => {
 
-            if(!facultyInfo) return
+            if (!facultyInfo) return
 
             const { id } = facultyInfo
 
@@ -50,8 +48,8 @@ export function Page({ setError }) {
             }
 
         })()
-    
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     if (!facultyInfo) {
@@ -60,10 +58,6 @@ export function Page({ setError }) {
 
     return (
         <>
-            <Helmet>
-                <title>ЭИОС: {title}</title>
-            </Helmet>
-            <h1>{title}</h1>
             <div style={{ marginBottom: '21px' }}>
                 <h3>Статистика</h3>
                 <div css={statisticsContainerCss}>
@@ -147,4 +141,9 @@ export const layoutProps = {
         { ext: true, title: 'Итоговая аттестация', url: getUrlForOldIais('dekanat/5/index.htm') },
         { title: "Импорт плана", url: "/dekanat/faculty/import-plan" }
     ]
+}
+
+export const funcLayoutProps = {
+    topbarLinks,
+    contentTitle: () => getFacultyInfo() ?.isFaculty ? 'Факультет' : 'Институт'
 }

@@ -32,7 +32,10 @@ module.exports = (env, argv) => ({
         historyApiFallback: true,
         host: '0.0.0.0',
         hot: true,
-        disableHostCheck: true
+        disableHostCheck: true,
+        headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }
     },
     plugins: [
         new CleanWebpackPlugin(),

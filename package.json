@@ -12,7 +12,7 @@
     "@emotion/core": "^10.0.22",
     "@hot-loader/react-dom": "^16.11.0",
     "@kemsu/eios-ui": "file:../../@kemsu/eios-ui",
-    "@kemsu/react-routing": "^1.2.1",
+    "@kemsu/react-routing": "file:../../@kemsu/react-routing",
     "date-input-polyfill": "^2.14.0",
     "jquery": "^3.4.1",
     "jquery-datepicker": "^1.12.3",

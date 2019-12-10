@@ -1,6 +1,6 @@
 
 export const borderColor = '#dce3ec'
-export const transitionDuration = '0.1s'
+export const transitionDuration = '0.2s'
 export const logoWidth = '212px'
 export const logoTxtLtSpc = '2px'
 export const offset = '3vw'

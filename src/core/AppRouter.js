@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, Fragment, useCallback } from 'react'
+import React, { useEffect, useReducer, Fragment, useCallback, useState } from 'react'
 import Page404 from './Page404'
 
 const stateInitialValue = { App: () => 'Загрузка...', Layout: Fragment, layoutProps: {} }
@@ -15,7 +15,7 @@ async function getLayoutPropsFromModule(module, forceUpdate) {
 
         let result = propValue(summaryLayoutProps, forceUpdate)
 
-        if (result?.then) result = await result
+        if (result ?.then) result = await result
 
         summaryLayoutProps[propName] = result
     }
@@ -27,24 +27,28 @@ async function getLayoutPropsFromModule(module, forceUpdate) {
 class InvalidAppModuleError extends Error { }
 
 
-export default function AppRouter({ setError, appName }) {
+export default function AppRouter({ setError, appName }) {    
 
     const [{ App, Layout, layoutProps }, setState] = useReducer(
         (prevState, newState) => ({ ...prevState, ...newState }),
         stateInitialValue
     )
 
+    const [loading, setLoading] = useState(false)
+
     const [forceUpdateState, forceUpdate] = useReducer(() => ({}))
 
-    const setLayoutProps = useCallback((layoutProps) => setState({ layoutProps }), [setState])
+    const setLayoutProps = useCallback((layoutProps) => setState({ layoutProps }), [])
 
     useEffect(() => {
         (async () => {
             try {
 
+                setLoading(true)
+
                 // импортируем модуль приложения
                 let appModule = await import(
-                    /* webpackMode: "lazy-once" */
+                    /* webpackMode: "lazy" */
                     /* webpackChunkName: "apps" */
                     `../apps/${appName}/index.js`
                 )
@@ -83,18 +87,23 @@ export default function AppRouter({ setError, appName }) {
                 } else {
                     setError(err.message)
                 }
+            } finally {
+                setLoading(false)
             }
         })()
 
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [location.pathname, forceUpdateState, setState, Layout, appName, setError])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [location.pathname, forceUpdateState, Layout, appName])
 
-    if (Layout !== Fragment) layoutProps['setError'] = setError
+    if (Layout !== Fragment) { 
+        layoutProps['setError'] = setError
+        layoutProps['loading'] = loading
+    }
 
     return (
-        <Layout {...layoutProps}>
-            <App forceUpdateApp={forceUpdate} setError={setError} appName={appName} setLayoutProps={setLayoutProps} />
+        <Layout  {...layoutProps}>
+            <App loading={loading} forceUpdateApp={forceUpdate} setError={setError} appName={appName} setLayoutProps={setLayoutProps} />
         </Layout>
     )
 }

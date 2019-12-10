@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import queryString from 'query-string'
-import { Button, TextField, useTextField } from '@kemsu/eios-ui'
+import { Button, TextField, Spinner, useTextField } from '@kemsu/eios-ui'
 import { Link, HistoryManager } from '@kemsu/react-routing'
 import { isAccessTokenValid, auth, requestToOldIais } from 'share/utils'
 
@@ -42,16 +42,17 @@ export default function SigninForm({ onMessage, setError }) {
                 }, () => {
 
                     if (/[а-яА-Я]+/.test(login) || /[а-яА-Я]+/.test(password)) {
-                        this.setState({
-                            authInProgress: false,
-                            warningInModal: "Логин и пароль должны состоять из латинских букв и цифр. Для смены логина и пароля обратитесь, пожалуйста, в деканат!",
-                            restorePassswordInProgress: false
+
+                        setAuthInProgress(false)
+                        onMessage({
+                            text: "Логин и пароль должны состоять из латинских букв и цифр. Для смены логина и пароля обратитесь, пожалуйста, в деканат!",
+                            type: "warning"
                         })
+                        
                         return
                     }
 
                     setAuthInProgress(false)
-
                     HistoryManager.push(backUrl || '/personal-area')                    
 
                 }, true)
@@ -87,7 +88,7 @@ export default function SigninForm({ onMessage, setError }) {
             </div>
             <div css={submitButtonContainerCss}>
                 <Button disabled={authInProgress} type='submit' css={submitButtonCss} colorStyle="secondary">
-                    Войти
+                    {authInProgress ? <Spinner colorStyle='light' style={{ width: '1em' }}/> : 'Войти'}
                 </Button>
                 {isAccessTokenValid() && <Button elementType={Link} to='/personal-area' style={{ marginLeft: '9.6px' }} css={submitButtonCss} colorStyle='secondary'>Личный кабинет</Button>}
             </div>

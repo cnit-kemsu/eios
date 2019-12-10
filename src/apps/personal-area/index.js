@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
-import { getUserInfo, userIsStudent, userInfoExists, fetchApi, makeAppGenerator, getUserFullName } from 'share/utils'
+import { getUserInfo, userIsStudent, userInfoExists, fetchApi, makeAppGenerator, getUserFullName, logout } from 'share/utils'
 import { cnitContacts } from 'share/eios/cnitContacts'
 import { studentPages } from 'share/eios/studentPages'
 import { employeePages } from 'share/eios/employeePages'
@@ -36,8 +36,7 @@ export const appGenerator = makeAppGenerator(() => {
     if (isStudent && !facultyId) return null
 
     return (
-        <div>
-            <h1>Личный кабинет {isStudent ? 'обучающегося' : 'преподавателя'}</h1>
+        <div>            
             <LinkList links={isStudent ? getStudentLinks({ facultyId, graduateFlag }) : getEmployeeLinks()} />
         </div>
     )
@@ -48,11 +47,13 @@ export const appGenerator = makeAppGenerator(() => {
 
 export { default as Layout } from 'share/eios/layout/Layout'
 
-export const layoutProps = {
+export const layoutProps = {    
+    onLogoutButtonClick: logout,
     footerContactInfo: cnitContacts
 }
 
 export const funcLayoutProps = {
+    contentTitle: () => `Личный кабинет ${userIsStudent() ? 'обучающегося' : 'преподавателя'}`,
     username: getUserFullName,
     topbarLinks,
     sidebarLinks: () => userIsStudent() ? studentPages('personal') : employeePages('personal')

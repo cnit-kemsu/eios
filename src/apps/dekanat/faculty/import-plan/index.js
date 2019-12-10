@@ -89,7 +89,7 @@ export function Page({ setError }) {
                 setError(err)
             }
         })()
-    }, [setError])
+    }, [])
 
     const fileRef = useRef()
     const startDateRef = useRef()
@@ -191,7 +191,7 @@ export function Page({ setError }) {
             <div>
                 <Message type='error'>
                     Не для всех блоков выбранного стандарта указаны часы или ЗЕТы!
-                </Message>
+                </Message>                
             </div>
         )
     }
@@ -266,6 +266,10 @@ export function Page({ setError }) {
 
 export const pageProps = {
     secure: true
+}
+
+export const layoutProps = {
+    contentTitle: 'Импорт плана'
 }
 
 export { default as Layout } from 'share/eios/layout/Layout'

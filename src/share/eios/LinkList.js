@@ -25,11 +25,13 @@ export const parentLinksCss = css`
 
 export default function LinkList({ links, showAsSublinks }) {
 
+    const linkList = links.filter(link => !!link)
+
     return (
-        <div className={showAsSublinks ? parentLinksCss : undefined}>
+        <div css={showAsSublinks ? parentLinksCss : undefined}>
             {
-                links.map((link, i) => link && (
-                    <div style={{ marginLeft: showAsSublinks ? '16px' : '0px' }} key={i}>
+                linkList.map((link, i) => (
+                    <div css={link.css} style={{ marginLeft: showAsSublinks ? '16px' : '0px' }} key={i}>
                         <span style={{ marginRight: '9.6px' }}>{showAsSublinks ? '—' : `${i + 1}.`}</span>
                         <Tooltip position="right" text={link.contact && `Контакты: ${link.contact}`}>
                             {

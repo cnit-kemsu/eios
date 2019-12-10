@@ -3,7 +3,7 @@ import { css } from '@emotion/core'
 import { transitionDuration, offset, logoTxtLtSpc, logoWidth } from '../constants'
 
 export const logoRootCss = css`
-    transition: width, font-size, padding, height, background;
+    transition: width, font-size, padding, height;
     transition-duration: ${transitionDuration};
     position: absolute;
     left: 0px;
@@ -12,14 +12,15 @@ export const logoRootCss = css`
     display: flex;      
     align-items: center;    
     letter-spacing: ${logoTxtLtSpc};    
-    background: rgb(30, 67, 128);
     border-bottom: 1px solid #4C6293;
     overflow: hidden;
 `
 
-export const dynLogoRootCss = ({ height, hide }) => css`
+export const dynLogoRootCss = ({ height, hide, logoBackground, border }) => css`
     height: ${height};
     width: ${hide ? '0px' : logoWidth}; 
+    background: ${logoBackground ? logoBackground : 'rgb(30, 67, 128)'};
+    border-bottom: ${border ? border : '1px solid #4C6293'};
 `
 
 export const logoTextCss = css`
@@ -27,8 +28,7 @@ export const logoTextCss = css`
         h1 {        
             transition: font-size ${transitionDuration};
             padding: 0px;
-            font-weight: normal;
-            color: white;
+            font-weight: normal;            
         }
         
         position: absolute;
@@ -41,9 +41,10 @@ export const logoTextCss = css`
     }
 `
 
-export const dynLogoTextCss = ({ logoSize }) => css`
+export const dynLogoTextCss = ({ logoSize, logoColor }) => css`
     h1 {
         font-size: ${logoSize};
+        color: ${logoColor ? logoColor : 'white'};
     }
 `
 
@@ -56,9 +57,10 @@ export const sidebarRootCss = css`
     background: linear-gradient(to bottom, rgb(30, 67, 128) 0px, rgb(30, 67, 128) 50%, rgb(48, 105, 202) 100%);
 `
 
-export const dynSidebarRootCss = ({ height, hide }) => css`
+export const dynSidebarRootCss = ({ height, hide, sidebarBackground }) => css`
     min-height: calc(100vh - ${height});
     margin-left: ${hide ?  `-${logoWidth}` : '0px'};
+    background: ${sidebarBackground ? sidebarBackground : 'linear-gradient(to bottom, rgb(30, 67, 128) 0px, rgb(30, 67, 128) 50%, rgb(48, 105, 202) 100%)'};
 `
 
 export const sidebarVerticalBlockCss = css`
@@ -101,20 +103,31 @@ export const navLinkCss = css`
     cursor: pointer;    
 `
 
-export const navLinkContainerCss = css`
+export const navLinkContainerCss = css`    
+
+    &:hover{
+        background: rgba(255, 255, 255, 0.05);
+        border-left: 3.2px solid #dc1654;  
+        
+        & > div, a{            
+            padding-left: 0px;
+            padding-right: 25.6px;                                      
+        }
+    }
+`
+
+export const dynNavLinkContainerCss = ({ navItemColor, navItemHoverColor}) => css`
 
     div, a {
-        color: white;
+        color: ${navItemColor ? navItemColor : 'white'};
     }
 
     &:hover{
         background: rgba(255, 255, 255, 0.05);
         border-left: 3.2px solid #dc1654;  
         
-        & > a{            
-            padding-left: 0px;
-            padding-right: 25.6px;                 
-            color: #e5e5e5;            
+        & > div, a{                                         
+            color: ${navItemHoverColor ? navItemHoverColor : '#e5e5e5'};
         }
     }
 `

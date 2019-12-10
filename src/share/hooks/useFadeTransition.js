@@ -4,13 +4,22 @@ import { toArray } from '../utils'
 
 
 
-export function useFadeTransition(content, fadeInEmotionCss, fadeOutEmotionCss, emotionCss, isTransition = true) {
+export function useFadeTransition(content, fadeInEmotionCss, fadeOutEmotionCss, emotionCss, isTransition = true, contentChangeSigns = null) {    
 
     const [transitionContent, setTransitionContent] = useState(null)
     const prevContent = usePrevious(content)
-    const onTransitionEnd = useCallback(() => setTransitionContent(null), [setTransitionContent])
+    const prevContentChangeSigns = usePrevious(contentChangeSigns)
+    const onTransitionEnd = useCallback(() => setTransitionContent(null), [])
 
-    const contentChanged = prevContent !== undefined && prevContent.type !== content.type
+    let contentChanged = prevContent !== undefined
+
+    if (contentChangeSigns) {
+        if (prevContentChangeSigns) {
+            contentChanged = contentChanged && contentChangeSigns.some((sign, i) => prevContentChangeSigns[i] !== sign)
+        }
+    } else {
+        contentChanged = contentChanged && prevContent.type !== content.type
+    }
 
     useEffect(() => {
 

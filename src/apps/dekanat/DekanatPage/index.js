@@ -79,11 +79,7 @@ export default function DekanatPage() {
     }, [showFaculties])    
 
     return (
-        <>
-            <Helmet>
-                <title>ЭИОС: Деканат</title>
-            </Helmet>
-            <h1>Деканат</h1>
+        <>            
             <h2>{showFaculties ? 'Факультеты' : 'Институты'}</h2>
             <Tabs {...tabs} stretchTabs>
                 <Tab id="fullTime">Очная и очно-заочная форма</Tab>
@@ -102,7 +98,8 @@ export const pageProps = {
 
 export const layoutProps = {
     topbarLinks,
-    backUrl: '/employee-area'
+    backUrl: '/employee-area',
+    contentTitle: 'Деканат'
 }
 
 export const funcLayoutProps = {

@@ -1,11 +1,11 @@
 import { css } from '@emotion/core'
 
-import { offset, transitionDuration } from '../constants'
+import { transitionDuration, offset } from '../constants'
 
 export const rootCss = css`
-    flex: 1 1 auto;
-    margin: ${offset}; 
+    flex: 1 1 auto;    
     transition: opacity ${transitionDuration};
+    margin: ${offset};
 `
 
 export const fadeInCss = css`

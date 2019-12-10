@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react'
-import { Button, TextField, useTextField } from '@kemsu/eios-ui'
+import { Button, TextField, Spinner, useTextField } from '@kemsu/eios-ui'
 import { requestToOldIais, fetchApi } from 'share/utils'
 
 import { textFieldContainerCss, submitButtonCss, submitButtonContainerCss } from './authFormStyle'
@@ -33,7 +33,6 @@ export default function RestorePasswordForm({ onMessage }) {
             return
         }
 
-
         let result = await response.json()
 
         if (!result.success) {           
@@ -63,7 +62,7 @@ export default function RestorePasswordForm({ onMessage }) {
         }, true)
 
 
-    }, [setRestorePasswordInProgress])
+    }, [onMessage])
 
     const username = useTextField()
     const email = useTextField()
@@ -76,7 +75,7 @@ export default function RestorePasswordForm({ onMessage }) {
             </div>
             <div css={submitButtonContainerCss}>
                 <Button disabled={restorePasswordInProgress} type='submit' css={submitButtonCss} colorStyle="secondary">
-                    Отправить
+                    {restorePasswordInProgress ? <Spinner colorStyle='light' style={{ width: '1em' }}/> : 'Отправить'}
                 </Button>
             </div>
         </form>

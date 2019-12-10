@@ -1,4 +1,5 @@
 import React from 'react'
+import { Helmet } from 'react-helmet'
 
 import Header from './Header'
 import Sidebar from './Sidebar'
@@ -7,7 +8,7 @@ import AppContent from './AppContent'
 import Footer from './Footer'
 
 import { globalCss, rootCss, horizontalBlockCss, verticalBlockCss } from './style'
-import { bigHeaderHeight, smallHeaderHeight, bigLogoSize, smallLogoSize } from './constants'
+import { bigHeaderHeight, smallHeaderHeight, bigLogoSize, smallLogoSize, offset } from './constants'
 import { Global } from '@emotion/core'
 
 
@@ -31,29 +32,39 @@ export default function Layout({
     onUsernameClick,
     onLogoutButtonClick,
     backUrl,
+    sidebarStyle,
+    loading,
+    contentTitle,
+    showContentHeader,
     children
 }) {
 
     const headerHeight = subtitle ? bigHeaderHeight : smallHeaderHeight
     const logoSize = subtitle ? bigLogoSize : smallLogoSize
 
-
     return (
-        <div css={rootCss}>
-            <Global styles={globalCss} />
-            <Header
-                onUsernameClick={onUsernameClick} onLogoutButtonClick={onLogoutButtonClick} username={username}
-                logoSize={logoSize} logoText={logoText} logoUrl={logoUrl} orgUrl={orgUrl}
-                orgName={orgName} title={title} titleUrl={titleUrl} subtitle={subtitle} height={headerHeight} />
-            <div css={horizontalBlockCss}>
-                <Sidebar backUrl={backUrl} logoText={logoText} logoSize={logoSize} hide={hideSidebar} height={headerHeight} links={sidebarLinks} />
-                <div css={verticalBlockCss}>
-                    <Topbar additionalInfo={topbarAdditionalInfo} hide={hideTopbar} links={topbarLinks} />
-                    <AppContent>{children}</AppContent>
-                    <Footer contactInfo={footerContactInfo} links={footerLinks} />
+        <>
+            <Helmet>
+                <title>{logoText}{contentTitle ? `: ${contentTitle}` : ''}</title>
+            </Helmet>
+            <div css={rootCss}>
+                <Global styles={globalCss} />
+                <Header
+                    onUsernameClick={onUsernameClick} onLogoutButtonClick={onLogoutButtonClick} username={username}
+                    logoSize={logoSize} logoText={logoText} logoUrl={logoUrl} orgUrl={orgUrl}
+                    orgName={orgName} title={title} titleUrl={titleUrl} subtitle={subtitle} height={headerHeight} />
+                <div css={horizontalBlockCss}>
+                    <Sidebar style={sidebarStyle} backUrl={backUrl} logoText={logoText} logoSize={logoSize} hide={hideSidebar} height={headerHeight} links={sidebarLinks} />
+                    <div css={verticalBlockCss}>
+                        <Topbar additionalInfo={topbarAdditionalInfo} hide={hideTopbar} links={topbarLinks} loading={loading} />
+                        <AppContent contentTitle={showContentHeader ? contentTitle : ''}>
+                            {children}
+                        </AppContent>
+                        <Footer contactInfo={footerContactInfo} links={footerLinks} />
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 }
 
@@ -66,5 +77,6 @@ Layout.defaultProps = {
     titleUrl: '/',
     hideSidebar: false,
     topbarLinks: [],
-    sidebarLinks: []
+    sidebarLinks: [],
+    showContentHeader: true
 }

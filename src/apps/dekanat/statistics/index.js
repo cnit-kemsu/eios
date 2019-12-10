@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { Helmet } from 'react-helmet'
 import { Table } from '@kemsu/eios-ui'
 
 import { fetchApi } from 'share/utils'
@@ -23,11 +22,7 @@ export default function StatisticsPage() {
     }, [setStatistics, setLoading])
 
     return (
-        <>
-            <Helmet>
-                <title>ЭИОС: Главная страница</title>
-            </Helmet>
-            <h1>Статистика</h1>
+        <>            
             <Loading loading={loading} title='Загрузка статистики...'>
                 <Table>
                     <thead>
@@ -64,5 +59,6 @@ export default function StatisticsPage() {
 
 export const layoutProps = {
     sidebarLinks: [],
-    topbarLinks
+    topbarLinks,
+    contentTitle: 'Статистика'
 }

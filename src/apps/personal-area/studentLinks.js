@@ -1,5 +1,7 @@
 import { contacts } from './contacts'
 import { getUrlForOldIais } from 'share/utils'
+import { css } from '@emotion/core'
+
 
 export const getStudentLinks = ({ facultyId, graduateFlag }) => [
     {
@@ -11,7 +13,7 @@ export const getStudentLinks = ({ facultyId, graduateFlag }) => [
     { target: '_blank', url: 'https://kemsu.ru/education/schedule/', ext: true, title: 'Расписание занятий/сессий', contact: contacts.webProjCenter },
     { target: '_blank', url: 'http://www.kemsu.ru/', ext: true, title: 'Официальный сайт КемГУ', contact: contacts.webProjCenter },
 
-    { url: '/student-area/rating', title: 'Рейтинг обучающихся (БРС)', contact: contacts.cnitSupp },
+    { url: '/rating-for-students', title: 'Рейтинг обучающихся (БРС)', contact: contacts.cnitSupp },
     { url: getUrlForOldIais('proc/stud/'), ext: true, title: 'Информационное обеспечение учебного процесса (ИнфОУПро)', contact: contacts.cnitSupp },
     { target: '_blank', url: 'http://moodle.kemsu.ru/', ext: true, title: 'Cистема управления курсами (Moodle)', contact: contacts.cnitSupp },
     { url: getUrlForOldIais('tests'), ext: true, title: 'Система компьютерного адаптивного тестирования (СКАТ)', contact: contacts.cnitSupp },
@@ -26,11 +28,15 @@ export const getStudentLinks = ({ facultyId, graduateFlag }) => [
     { url: 'http://lib.kemsu.ru/pages/default.aspx', ext: true, title: 'Научная библиотека КемГУ', contact: contacts.sciLib },
     {
         target: '_blank', title: 'Электронные библиотечные системы:', sublinks: [
+
+            (facultyId === 668 || facultyId === 669) ? { target: '_blank', url: 'https://academia-moscow.ru/elibrary/', ext: true, title: 'Издательский ценрт "Академия"' } : undefined,
+
             { target: '_blank', url: 'https://biblioclub.ru/index.php?page=main_ub_red', ext: true, title: 'Университетская библиотека онлайн', contact: contacts.sciLib },
             { target: '_blank', url: 'http://e.lanbook.com/', ext: true, title: 'Издательство "Лань"', contact: contacts.sciLib },
             { target: '_blank', url: 'https://biblio-online.ru/', ext: true, title: 'Издательство "ЮРАЙТ"', contact: contacts.sciLib },
             { target: '_blank', url: 'http://www.studentlibrary.ru/', ext: true, title: 'Консультант студента', contact: contacts.sciLib },
             { target: '_blank', url: 'http://znanium.com/', ext: true, title: 'Znanium.com', contact: contacts.sciLib }
+
         ], contact: contacts.sciLib
     },
 
@@ -39,6 +45,6 @@ export const getStudentLinks = ({ facultyId, graduateFlag }) => [
 
     { url: getUrlForOldIais("orders/"), ext: true, title: 'Заказ справки о доходах для обучающихся очной формы обучения', contact: contacts.cnitSupp },
     { url: 'https://eios.kemsu.ru/a/pgas', ext: true, title: 'Подача заявки на повышенную государственную академическую стипендию (ПГАС)' },
-
-    (facultyId === 101 || facultyId === 390) && graduateFlag !== 0 ? ({ target: '_blank', url: 'http://ifn.kemsu.ru/?page_id=8771', ext: true, title: 'Анкета выпускника' }) : undefined
+    { url: 'https://eios.kemsu.ru/a/anketa-to-bsod', ext: true, title: 'Анкета для дисциплины', css: css`* {color: red !important;}` },
+    (facultyId === 390 || facultyId == 428) && graduateFlag !== 0 ? ({ target: '_blank', url: 'http://ifn.kemsu.ru/?page_id=8771', ext: true, title: 'Анкета выпускника' }) : undefined
 ]

@@ -1,5 +1,4 @@
 import React from 'react'
-import { Helmet } from 'react-helmet'
 import { Tabs, Tab, useTabs } from '@kemsu/eios-ui'
 
 import { getUserFullName, logout } from 'share/utils'
@@ -14,15 +13,12 @@ import AuthForm from './AuthForm'
 import StudentInfo from './StudentInfo'
 import EmployeeInfo from './EmployeeInfo'
 
-export function App({ setError }) {
+export default function App({ setError }) {
 
     const tabs = useTabs('student')
 
     return (
-        <>
-            <Helmet>
-                <title>ЭИОС: Главная страница</title>
-            </Helmet>
+        <>            
             <div css={rootCss}>
                 <div css={[colCss, leftColImageContainerCss]}>
                     <img src="/assets/images/home.jpg" />
@@ -61,7 +57,9 @@ export const layoutProps = {
     hideTopbar: true,
     hideSidebar: true,
     onLogoutButtonClick: logout,
-    subtitle: 'Личный кабинет'
+    subtitle: 'Личный кабинет',
+    contentTitle: 'Главная страница',
+    showContentHeader: false
 }
 
 export const funcLayoutProps = {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { getUserFullName, makeAppGenerator, fetchApi } from 'share/utils'
+import { getUserFullName, makeAppGenerator, fetchApi, logout } from 'share/utils'
 import { cnitContacts } from 'share/eios/cnitContacts'
 import { studentPages } from 'share/eios/studentPages'
 import { DataRow } from 'share/eios/DataRow'
@@ -26,11 +26,14 @@ export const appGenerator = makeAppGenerator(({ setError }) => {
 
         })()
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     if (!studyCards) return null
 
     return (
+        <>
+        <h1>Учебные карты</h1>
         <div style={{ width: '800px' }}>
             {
                 studyCards.map((studyCard, i) => (
@@ -50,6 +53,7 @@ export const appGenerator = makeAppGenerator(({ setError }) => {
                 ))
             }
         </div>
+        </>
     )
 
 }, { secure: true })
@@ -57,6 +61,7 @@ export const appGenerator = makeAppGenerator(({ setError }) => {
 export { default as Layout } from 'share/eios/layout/Layout'
 
 export const layoutProps = {
+    onLogoutButtonClick: logout,
     footerContactInfo: cnitContacts,
     topbarLinks,
     sidebarLinks: studentPages('cards')
