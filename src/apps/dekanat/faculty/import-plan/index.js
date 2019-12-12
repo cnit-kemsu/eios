@@ -8,88 +8,94 @@ import $ from 'jquery'
 import { DataRow } from 'share/eios/DataRow'
 import { fetchApi, syncWithOldIais } from 'share/utils'
 import Loading from 'share/eios/Loading'
+import { useReducerAsync } from 'share/hooks'
 
 import importPlan from './import'
+
+import { topbarLinks } from './links'
 
 
 const InfoRow = (props) => <DataRow {...props} style={{ padding: '4px 0px' }} titleStyle={{ width: '300px' }} />
 
-export function Page({ setError }) {
 
-    const [state, setState] = useReducer((prevState, newState) => ({ ...prevState, ...newState }), {
-        specializations: [{ value: '', content: '- отсутствует -' }],
-        planTypes: []
+// Функция загрузки данных плана
+async function fetchPlan() {
+
+    // Считываем выбранный в iais стандарт
+    let planId = await syncWithOldIais('get-plan-standard')
+
+    if (!planId) {
+        return ({ message: "Не выбран стандарт!", messageType: "error" })
+    }
+
+    // Проверяем, чтобы у всех блоков стандарта были указаны часы и зеты
+    let response = await fetchApi(`dekanat/plans/check-plan/${planId}`, null, true, true)
+
+    let invalidStandard = !(await response.json())
+
+    if (invalidStandard) {
+        return ({ invalidStandard })
+    }
+
+    // Загружаем данные плана
+    response = await fetchApi(`dekanat/plans/${planId}`, null, true, true)
+    let plan = await response.json()
+
+    // Загружаем список специализаций
+    response = await fetchApi(`dekanat/specialities/${plan.SPECIALITY_ID}/specializations`, null, true, true)
+    let specializations = await response.json()
+
+    // Загружаем список видов плана
+    response = await fetchApi(`dekanat/plans/types`)
+    let planTypes = await response.json()
+
+    return ({
+        planId: planId,
+        plan: plan,
+        specializations: [
+            { content: "- отсутствует -", value: "" },
+            ...specializations.map(s => ({
+                content: s.TITLE, value: s.ID
+            }))
+        ],
+        planTypes: planTypes.map(t => ({ value: t.ID, content: t.TITLE })),
+        showForm: true
+
     })
+
+}
+
+export function Page({ setError }) {
 
     const specSelect = useSelect("")
     const { value: planType, ...planTypeSelect } = useSelect()
 
+    const state = useReducerAsync(fetchPlan, (prevState, newState) => ({ ...prevState, ...newState }),
+        {
+            specializations: [{ value: '', content: '- отсутствует -' }],
+            planTypes: [],
+            showForm: false
+        }, [])
+
     const {
+        showForm,
         invalidStandard,
-        plan,
+        plan = {},
         planId,
         specializations,
-        planTypes,
+        planTypes = [],
         message,
         messageType,
         importing,
         nextBtnClicked,
         needConfirmImport,
         forcedImport
-    } = state
+    } = state.value
 
     useEffect(() => {
-        (async () => {
-
-            try {
-                // Считываем выбранный в iais стандарт
-                let planId = await syncWithOldIais('get-plan-standard')
-
-                if (!planId) {
-                    setState({ message: "Не выбран стандарт!", messageType: "error" })
-                    return
-                }
-
-                // Проверяем, чтобы у всех блоков стандарта были указаны часы и зеты
-                let response = await fetchApi(`dekanat/plans/check-plan/${planId}`, null, true, true)
-
-                let invalidStandard = !(await response.json())
-
-                if (invalidStandard) {
-                    setState({ invalidStandard })
-                    return
-                }
-
-                // Загружаем данные плана
-                response = await fetchApi(`dekanat/plans/${planId}`, null, true, true)
-                let plan = await response.json()
-
-                // Загружаем список специализаций
-                response = await fetchApi(`dekanat/specialities/${plan.SPECIALITY_ID}/specializations`, null, true, true)
-                let specializations = await response.json()
-
-                // Загружаем список видов плана
-                response = await fetchApi(`dekanat/plans/types`)
-                let planTypes = await response.json()
-
-                setState({
-                    planId: planId,
-                    plan: plan,
-                    specializations: [
-                        { content: "- отсутствует -", value: "" },
-                        ...specializations.map(s => ({
-                            content: s.TITLE, value: s.ID
-                        }))
-                    ],
-                    planTypes: planTypes.map(t => ({ value: t.ID, content: t.TITLE }))
-
-                })
-
-            } catch (err) {
-                setError(err)
-            }
-        })()
-    }, [])
+        if (state.error) setError(state.error)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [state.error])
 
     const fileRef = useRef()
     const startDateRef = useRef()
@@ -98,21 +104,22 @@ export function Page({ setError }) {
     const clickNextBtn = useCallback(() => {
 
         if (!startDateRef.current.value || !endDateRef.current.value) {
-            setState({
+            state.set({
                 message: "Не указан период обучения!",
                 messageType: "warning"
             })
             return
         }
 
-        setState({ nextBtnClicked: true, message: null })
+        state.set({ nextBtnClicked: true, message: null })
 
-    }, [])
-    const toggleForcedImport = useCallback(() => setState({ forcedImport: !forcedImport }), [forcedImport])
+    }, [state])
+
+    const toggleForcedImport = useCallback(() => state.set({ forcedImport: !forcedImport }), [forcedImport, state])
     const clickImportPlanBtn = useCallback(() => {
 
         if (!startDateRef.current.value || !endDateRef.current.value) {
-            setState({
+            state.set({
                 message: "Не указан период обучения!",
                 messageType: "warning"
             })
@@ -120,7 +127,7 @@ export function Page({ setError }) {
         }
 
         if (fileRef.current.files.length === 0) {
-            setState({
+            state.set({
                 message: "Файл не выбран!",
                 messageType: "warning"
             })
@@ -128,7 +135,7 @@ export function Page({ setError }) {
         }
 
         if (fileRef.current.files.length > 1) {
-            setState({
+            state.set({
                 message: "Выбрано несколько файлов! Необходимо выбрать один.",
                 messageType: "warning"
             })
@@ -147,23 +154,23 @@ export function Page({ setError }) {
                 xml = $($.parseXML(xml))
                 if (!xml) throw new Error()
             } catch (err) {
-                setState({ message: "Некорректный файл!", messageType: "error" })
+                state.set({ message: "Некорректный файл!", messageType: "error" })
                 return;
             }
 
             // Импортируем план
             await importPlan({
                 startDateRef, endDateRef,
-                state: { ...state, specialization: specSelect.value, planType },
-                setState
+                state: { ...state.value, specialization: specSelect.value, planType },
+                setState: state.set
             }, xml, type)
 
 
-            setState({ importing: false })
+            state.set({ importing: false })
         }
 
         reader.onerror = () => {
-            setState({ message: "Не удалось считать файл!", messageType: "error" })
+            state.set({ message: "Не удалось считать файл!", messageType: "error" })
         }
 
         xmlFile = fileRef.current.files[0]
@@ -176,11 +183,11 @@ export function Page({ setError }) {
         } else if (xmlFile.name.toLowerCase().endsWith('.osf')) {
             type = 'osf'
         } else {
-            setState({ message: "Выбран файл с неизвестным расширением!", messageType: "error" })
+            state.set({ message: "Выбран файл с неизвестным расширением!", messageType: "error" })
             return
         }
 
-        setState({ message: null, messageType: null, importing: true, needConfirmImport: false })
+        state.set({ message: null, messageType: null, importing: true, needConfirmImport: false })
 
         reader.readAsText(xmlFile)
 
@@ -191,17 +198,15 @@ export function Page({ setError }) {
             <div>
                 <Message type='error'>
                     Не для всех блоков выбранного стандарта указаны часы или ЗЕТы!
-                </Message>                
+                </Message>
             </div>
         )
     }
 
     return (
         <div>
-            {
-                plan
-                &&
-                <>
+            <Loading delay={1} title='Загрузка данных плана...' loading={state.loading}>
+                {showForm && <>
                     <InfoRow title="Идентификатор стандарта учебного плана" content={planId} />
                     <InfoRow title="Факультет" content={plan.FACULTY} />
                     <InfoRow title="Специальность/Направление" content={plan.SPECIALITY} />
@@ -239,8 +244,8 @@ export function Page({ setError }) {
                             <br />
                         </>
                     }
-                </>
-            }
+                </>}
+            </Loading>
 
             <br />
 
@@ -270,6 +275,10 @@ export const pageProps = {
 
 export const layoutProps = {
     contentTitle: 'Импорт плана'
+}
+
+export const funcLayoutProps = {
+    topbarLinks
 }
 
 export { default as Layout } from 'share/eios/layout/Layout'

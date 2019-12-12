@@ -40,6 +40,7 @@ export const appGenerator = makeAppGenerator(() => {
             <LinkList links={isStudent ? getStudentLinks({ facultyId, graduateFlag }) : getEmployeeLinks()} />
         </div>
     )
+    
 }, {
     secure: true
 })

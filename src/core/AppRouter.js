@@ -1,7 +1,9 @@
 import React, { useEffect, useReducer, Fragment, useCallback, useState } from 'react'
+import Loading from '../share/eios/Loading'
+
 import Page404 from './Page404'
 
-const stateInitialValue = { App: () => 'Загрузка...', Layout: Fragment, layoutProps: {} }
+const stateInitialValue = { App: () => <Loading delay={1} style={{ margin: '1em'}} title='Загрузка...' loading={true}/>, Layout: Fragment, layoutProps: {} }
 
 
 async function getLayoutPropsFromModule(module, forceUpdate) {
@@ -36,7 +38,7 @@ export default function AppRouter({ setError, appName }) {
 
     const [loading, setLoading] = useState(false)
 
-    const [forceUpdateState, forceUpdate] = useReducer(() => ({}))
+    const [forceUpdateState, forceUpdate] = useReducer(x => x + 1, 0)
 
     const setLayoutProps = useCallback((layoutProps) => setState({ layoutProps }), [])
 

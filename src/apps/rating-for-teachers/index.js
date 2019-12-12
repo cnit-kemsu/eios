@@ -39,7 +39,7 @@ export const appGenerator = makeAppGenerator(({ setError }) => {
     const facultySelect = useSelect(curFacultyInStorage ?.index)
 
 
-    const chooseFacultyForAdmins = useCallback(() => {
+    const chooseFacultyForAdmins = useCallback(async () => {
 
         setChooseFacultyForAdminInProcess(true)
 
@@ -47,9 +47,9 @@ export const appGenerator = makeAppGenerator(({ setError }) => {
 
         localStorage.setItem('reitFaculty', JSON.stringify({ ...curFaculty, index: facultySelect.value }))
 
-        requestToOldIais('dekanat/uspev/reit/index.htm', { in_faculty_id: curFaculty.ID, formLink: curFaculty.TITLE, action: 'setFaculty' }, () => {
-            setChooseFacultyForAdminInProcess(false)
-        }, true)
+        await requestToOldIais('dekanat/uspev/reit/index.htm', { in_faculty_id: curFaculty.ID, formLink: curFaculty.TITLE, action: 'setFaculty' }, true)
+
+        setChooseFacultyForAdminInProcess(false)
 
     }, [faculties, facultySelect.value])
 

@@ -18,9 +18,7 @@ startSyncWithOldIais()
 export default hot(function Main() {
 
     const [error, setError] = useState()
-    const route = useRoutes(routes, null, { setError })
-
-    console.log('Main')
+    const route = useRoutes(routes, null, { setError })    
 
     return (
         <ErrorBoundary error={error}>

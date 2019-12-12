@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Pane, Table, Message } from '@kemsu/eios-ui'
 
 import { getFacultyInfo, getUrlForOldIais, fetchDevApi as fetchApi } from 'share/utils'
+import { useAsync } from 'share/hooks'
 import Loading from 'share/eios/Loading'
 
 import { statisticItemCss, statisticsContainerCss, remindersCss } from './style'
@@ -16,41 +17,31 @@ const StatisticItem = (({ title, value }) => (
 ))
 
 
+async function fetchStatistics() {
+    const r = await fetchApi(`dekanat/faculties/${getFacultyInfo() ?.id}/statistics`)
+    return r.json()
+}
+
+async function fetchReminders() {
+    const r = await fetchApi(`dekanat/faculties/${getFacultyInfo() ?.id}/reminders`)
+    return r.json()
+}
+
+
 export function Page({ setError }) {
 
     const facultyInfo = getFacultyInfo()    
 
-    const [statistics, setStatistics] = useState([])
-    const [reminders, setReminders] = useState([])
-
-    const [loadingReminders, setLoadingReminder] = useState(true)
+    // eslint-disable-next-line no-unused-vars
+    const statistics = useAsync(fetchStatistics, {}, [])
+    const reminders = useAsync(fetchReminders, [], [])
 
     useEffect(() => {
-
-        const facultyInfo = getFacultyInfo();
-
-        (async () => {
-
-            if (!facultyInfo) return
-
-            const { id } = facultyInfo
-
-            try {
-
-                let result = await fetchApi(`dekanat/faculties/${id}/statistics`)
-                setStatistics(await result.json())
-
-                result = await fetchApi(`dekanat/faculties/${id}/reminders`)
-                setReminders(await result.json())
-                setLoadingReminder(false)
-            } catch (err) {
-                setError(err)
-            }
-
-        })()
-
+        const error = statistics.error || reminders.error
+        setError(error)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [statistics.error, reminders.error])
+    
 
     if (!facultyInfo) {
         return <Message type="warning">Не выбран институт/факультет!</Message>
@@ -62,23 +53,23 @@ export function Page({ setError }) {
                 <h3>Статистика</h3>
                 <div css={statisticsContainerCss}>
                     <Pane title='Контингент' style={{ marginRight: '20px' }}>
-                        <StatisticItem title='Абитуриентов' value={statistics.ABIT_CNT} />
-                        <StatisticItem title='Всего студентов' value={statistics.STUD_CNT} />
-                        <StatisticItem title='Учится' value={statistics.LEARN_CNT} />
-                        <StatisticItem title='В академическом отпуске' value={statistics.ACAD_CNT} />
-                        <StatisticItem title='Не связаны с учебным планом' value={statistics.NO_PLAN} />
+                        <StatisticItem title='Абитуриентов' value={statistics.value.ABIT_CNT} />
+                        <StatisticItem title='Всего студентов' value={statistics.value.STUD_CNT} />
+                        <StatisticItem title='Учится' value={statistics.value.LEARN_CNT} />
+                        <StatisticItem title='В академическом отпуске' value={statistics.value.ACAD_CNT} />
+                        <StatisticItem title='Не связаны с учебным планом' value={statistics.value.NO_PLAN} />
                     </Pane>
 
                     <Pane title='Элементы учебного процесса'>
-                        <StatisticItem title='Стандартов специальности/направления' value={statistics.STD_CNT} />
-                        <StatisticItem title='Учебных планов' value={statistics.WORK_CNT} />
-                        <StatisticItem title='Всего сессий' value={statistics.ALL_SESS_CNT} />
-                        <StatisticItem title='Открытых сессий' value={statistics.SESS_CNT} />
+                        <StatisticItem title='Стандартов специальности/направления' value={statistics.value.STD_CNT} />
+                        <StatisticItem title='Учебных планов' value={statistics.value.WORK_CNT} />
+                        <StatisticItem title='Всего сессий' value={statistics.value.ALL_SESS_CNT} />
+                        <StatisticItem title='Открытых сессий' value={statistics.value.SESS_CNT} />
                     </Pane>
                 </div>
             </div>
             <div css={remindersCss}>
-                <Loading loading={loadingReminders} title="Загрузка списка напоминаний..." titleWidth="200px">
+                <Loading delay={1} loading={reminders.loading} title="Загрузка списка напоминаний..." titleWidth="200px">
                     <div style={{ width: '70%' }}>
 
                         <h3>Напоминания</h3>
@@ -93,7 +84,7 @@ export function Page({ setError }) {
                             </thead>
                             <tbody>
                                 {
-                                    reminders.map((reminder, i) => (
+                                    reminders.value.map((reminder, i) => (
                                         <tr key={i}>
                                             <td>{reminder.COMMENTZ}</td>
                                             <td>{reminder.DATA}</td>

@@ -28,36 +28,25 @@ export default function SigninForm({ onMessage, setError }) {
 
             const { backUrl } = queryString.parse(location.search)
 
-            requestToOldIais('restricted/index_next.htm', {
+            await requestToOldIais('restricted/index_next.htm', {
                 login: login,
                 password: encodeURI(password),
                 _t: Date.now()
-            }, () => {
-
-
-                requestToOldIais('restricted/index_next.htm', {
-                    login: login,
-                    password: encodeURI(password),
-                    _t: Date.now()
-                }, () => {
-
-                    if (/[а-яА-Я]+/.test(login) || /[а-яА-Я]+/.test(password)) {
-
-                        setAuthInProgress(false)
-                        onMessage({
-                            text: "Логин и пароль должны состоять из латинских букв и цифр. Для смены логина и пароля обратитесь, пожалуйста, в деканат!",
-                            type: "warning"
-                        })
-                        
-                        return
-                    }
-
-                    setAuthInProgress(false)
-                    HistoryManager.push(backUrl || '/personal-area')                    
-
-                }, true)
-
             }, true)
+
+            if (/[а-яА-Я]+/.test(login) || /[а-яА-Я]+/.test(password)) {
+
+                setAuthInProgress(false)
+                onMessage({
+                    text: "Логин и пароль должны состоять из латинских букв и цифр. Для смены логина и пароля обратитесь, пожалуйста, в деканат!",
+                    type: "warning"
+                })
+
+                return
+            }
+
+            setAuthInProgress(false)
+            HistoryManager.push(backUrl || '/personal-area')
 
 
         } catch (err) {
@@ -74,7 +63,7 @@ export default function SigninForm({ onMessage, setError }) {
             }
         }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const username = useTextField()
@@ -88,7 +77,7 @@ export default function SigninForm({ onMessage, setError }) {
             </div>
             <div css={submitButtonContainerCss}>
                 <Button disabled={authInProgress} type='submit' css={submitButtonCss} colorStyle="secondary">
-                    {authInProgress ? <Spinner colorStyle='light' style={{ width: '1em' }}/> : 'Войти'}
+                    {authInProgress ? <Spinner colorStyle='light' style={{ width: '1em' }} /> : 'Войти'}
                 </Button>
                 {isAccessTokenValid() && <Button elementType={Link} to='/personal-area' style={{ marginLeft: '9.6px' }} css={submitButtonCss} colorStyle='secondary'>Личный кабинет</Button>}
             </div>

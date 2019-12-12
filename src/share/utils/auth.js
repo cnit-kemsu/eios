@@ -9,8 +9,8 @@ export function userInfoExists() {
 }
 
 export function userIsStudent() {
-    const userInfo = getUserInfo()       
-    return userInfo?.userType === 'обучающийся'
+    const userInfo = getUserInfo()
+    return userInfo ?.userType === 'обучающийся'
 }
 
 export function getAccessToken() {
@@ -29,6 +29,7 @@ export function getUserInfo() {
 }
 
 export function getUserFullName() {
+    
     const userInfo = getUserInfo()
 
     if (userInfo) {
@@ -53,19 +54,19 @@ function AuthError(status, message) {
     this.message = message
 }
 
-export function logout() {
+export async function logout() {
+
     localStorage.removeItem('accessToken')
     localStorage.removeItem('userInfo')
     localStorage.removeItem('facultyInfo')
     document.cookie = `accessToken=; path=/; domain=.kemsu.ru; expires=${(new Date(0)).toUTCString()}`
 
-    requestToOldIais('restricted/logoff.htm', null, () => {
+    await requestToOldIais('restricted/logoff.htm', null, true)
 
-        if (location.pathname == '/home') location = '/home'
-        else {
-            HistoryManager.push('/home')
-        }
-    }, true)
+    if (location.pathname == '/home') location = '/home'
+    else {
+        HistoryManager.push('/home')
+    }
 }
 
 export async function auth(login, password, accessTokenLifetime) {
@@ -92,7 +93,7 @@ export async function auth(login, password, accessTokenLifetime) {
     let decode = jwt_decode(result.accessToken)
 
     localStorage.setItem('accessToken', result.accessToken)
-    localStorage.setItem('userInfo', JSON.stringify(await addFacultyData(result.userInfo)))
+    localStorage.setItem('userInfo', JSON.stringify(result.userInfo))
     document.cookie = `accessToken=${result.accessToken}; path=/; domain=.kemsu.ru; expires=${(new Date(decode.exp * 1000)).toUTCString()}`
 }
 
@@ -119,54 +120,7 @@ export async function checkAccessTo(secure) {
     return result.ok
 }
 
-async function addFacultyData(userInfo) {
-
-    /*if (userInfo.userType === 'обучающийся') {        
-
-        let response = await fetchApi('dekanat/students/faculties/current', {
-            method: "get",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            }
-        })        
-
-        if (response.ok) {
-            let res = await response.json()            
-
-            userInfo.facultyId = res.facultyId
-            userInfo.facultyName = res.facultyName
-            userInfo.facultyShortName = res.facultyShortName
-        } else {
-            console.error((await response.json()).stack)
-        }
-
-    } else if (userInfo.userType === 'сотрудник') {
-        let response = await fetchApi('security/users/teachers/current-department', {
-            method: "get",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            }
-        })        
-
-        if (response.ok) {
-            let res = await response.json()            
-            
-            userInfo.facultyName = res.facultyName
-            userInfo.facultyShortName = res.facultyShortName
-            userInfo.cathedraName = res.cathedraName
-            
-        } else {
-            console.error((await response.json()).stack)
-        }
-    }*/
-
-    return userInfo
-}
-
 export async function updateUserInfo() {
     let response = await fetchApi('security/users')
-
-    localStorage.setItem('userInfo', JSON.stringify(await addFacultyData(await response.json())))
+    localStorage.setItem('userInfo', JSON.stringify(await response.json()))
 }

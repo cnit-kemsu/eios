@@ -8,11 +8,11 @@ export const statisticItemCss = css`
     padding: 0px;    
     padding-bottom: 14px;
 
-    &:not(:first-child) {
+    &:not(:first-of-type) {
         padding-top: 14px;
     }
 
-    &:not(:last-child) {
+    &:not(:last-of-type) {
         border-bottom: 1px solid rgb(230, 230, 230);
     }
 `

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { css } from '@emotion/core'
 import { Spinner } from '@kemsu/eios-ui'
 
@@ -15,22 +15,28 @@ const spinnerContainerCss = css`
     width: 100%;
 `
 
-export default function Loading({ loading, spinnerSize, title, titleWidth, delay, children }) {
+export default function Loading({ loading, spinnerSize, title, titleWidth, delay, children, ...props }) {
 
+    const timerId = useRef()
     const [show, setShow] = useState(delay === 0 ? true : false)
 
-    useEffect(() => {
-        setTimeout(() => setShow(true), delay)
-    }, [delay])
+    useEffect(() => {        
+        
+        if (loading) timerId.current = setTimeout(() => setShow(true), delay * 1000)
+        else if(timerId.current) clearTimeout(timerId.current)
+
+        return () => timerId.current && clearTimeout(timerId.current)
+
+    }, [delay, loading])
 
     if (!loading) return children || null
 
-    if(!show) return
+    if (!show) return null
 
     return (
-        <div css={rootCss}>
+        <div css={rootCss} {...props}>
             <div css={spinnerContainerCss}>
-                <Spinner scale={1} style={{width: spinnerSize}}/>
+                <Spinner scale={1} style={{ width: spinnerSize }} />
                 <div style={{ textAlign: "center", width: titleWidth, marginLeft: "8px" }}>{title}</div>
             </div>
         </div>

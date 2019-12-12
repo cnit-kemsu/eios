@@ -1,29 +1,27 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Table } from '@kemsu/eios-ui'
 
 import { fetchApi } from 'share/utils'
 import Loading from 'share/eios/Loading'
+import { useAsync } from 'share/hooks'
 
 import { topbarLinks } from './links'
 
-export default function StatisticsPage() {
+export default function StatisticsPage({ setError }) {
 
-    const [statistics, setStatistics] = useState([])
-    const [loading, setLoading] = useState(true)
+    const statistics = useAsync(async () => {
+        const result = await fetchApi('dekanat/faculties/statistics')
+        return result.json()
+    }, [], [])
 
     useEffect(() => {
-
-        (async () => {
-            const result = await fetchApi('dekanat/faculties/statistics')
-            setStatistics(await result.json())
-            setLoading(false)
-        })()
-
-    }, [setStatistics, setLoading])
+        setError(statistics.error)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [statistics.error])
 
     return (
-        <>            
-            <Loading loading={loading} title='Загрузка статистики...'>
+        <>
+            <Loading delay={1} loading={statistics.loading} title='Загрузка статистики...'>
                 <Table>
                     <thead>
                         <tr>
@@ -38,7 +36,7 @@ export default function StatisticsPage() {
                     </thead>
                     <tbody>
                         {
-                            statistics.map(({ TITLE, STUD_CNT, STD_CNT, ABIT_CNT, WORK_CNT, SESS_CNT, PERS_CNT }, i) => (
+                            statistics.value.map(({ TITLE, STUD_CNT, STD_CNT, ABIT_CNT, WORK_CNT, SESS_CNT, PERS_CNT }, i) => (
                                 <tr key={i}>
                                     <td>{TITLE}</td>
                                     <td>{PERS_CNT}</td>

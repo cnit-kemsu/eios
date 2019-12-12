@@ -8,7 +8,7 @@ import AppContent from './AppContent'
 import Footer from './Footer'
 
 import { globalCss, rootCss, horizontalBlockCss, verticalBlockCss } from './style'
-import { bigHeaderHeight, smallHeaderHeight, bigLogoSize, smallLogoSize, offset } from './constants'
+import { bigHeaderHeight, smallHeaderHeight, bigLogoSize, smallLogoSize } from './constants'
 import { Global } from '@emotion/core'
 
 

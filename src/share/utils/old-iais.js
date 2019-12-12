@@ -27,22 +27,29 @@ export function getUrlForOldIais(path, search, https) {
     return `${https ? 'https' : 'http'}://niais2.kemsu.ru/${path}?${searchStr}`
 }
 
-export function requestToOldIais(url, search, onLoad, https) {
+export function requestToOldIais(url, search, https) {
 
-    let iframe = document.createElement('iframe')
+    return new Promise((resolve, reject) => {
 
-    iframe.name = Date.now()
-    iframe.src = getUrlForOldIais(url, search, https)
-    iframe.style.display = 'none'
+        let iframe = document.createElement('iframe')
 
-    if (onLoad) {
+        iframe.name = Date.now()
+        iframe.src = getUrlForOldIais(url, search, https)
+        iframe.style.display = 'none'
+
         iframe.addEventListener('load', () => {
-            onLoad && onLoad()
+            resolve()
             iframe.parentNode.removeChild(iframe)
         })
-    }
 
-    document.body.appendChild(iframe)
+        iframe.addEventListener('error', (err) => {
+            reject(err)
+            iframe.parentNode.removeChild(iframe)
+        })
+
+        document.body.appendChild(iframe)
+
+    })
 }
 
 export function redirectToOldIais(url, search, https) {
@@ -51,12 +58,11 @@ export function redirectToOldIais(url, search, https) {
 
 export function checkAuthInOldIais() {
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         let iframe = document.createElement('iframe')
         iframe.style.display = 'none'
         iframe.name = Date.now()
         iframe.src = 'https://niais2.kemsu.ru/dekanat/eios-next-sync/check-auth.htm'
-        document.body.appendChild(iframe)
 
         let handler = e => {
             resolve(e.data)
@@ -69,17 +75,24 @@ export function checkAuthInOldIais() {
         iframe.addEventListener("load", () => {
             iframe.contentWindow.postMessage(null, "*")
         })
+
+        iframe.addEventListener('error', (err) => {
+            reject(err)
+            iframe.parentNode.removeChild(iframe)
+        })
+
+        document.body.appendChild(iframe)
     })
 }
 
 export function syncWithOldIais(htmFileName) {
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+
         let iframe = document.createElement('iframe')
         iframe.style.display = 'none'
         iframe.name = Date.now()
         iframe.src = `https://niais2.kemsu.ru/dekanat/eios-next-sync/${htmFileName}.htm`
-        document.body.appendChild(iframe)
 
         let handler = e => {
             resolve(e.data)
@@ -92,5 +105,12 @@ export function syncWithOldIais(htmFileName) {
         iframe.addEventListener("load", () => {
             iframe.contentWindow.postMessage(null, "*")
         })
+
+        iframe.addEventListener('error', (err) => {
+            reject(err)
+            iframe.parentNode.removeChild(iframe)
+        })
+
+        document.body.appendChild(iframe)
     })
 }
