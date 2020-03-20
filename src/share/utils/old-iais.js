@@ -19,22 +19,22 @@ export function startSyncWithOldIais() {
     }, 90000)
 }
 
-export function getUrlForOldIais(path, search, https) {
+export function getUrlForOldIais(path, search, https, server = 'xiais') {
 
     search = search ? { ...search, backToNewEios: location.toString() } : { backToNewEios: location.toString() }
 
     let searchStr = Object.keys(search).map(key => search[key] ? `${key}=${search[key]}` : key).join('&')
-    return `${https ? 'https' : 'http'}://niais2.kemsu.ru/${path}?${searchStr}`
+    return `${https ? 'https' : 'http'}://${server}.kemsu.ru/${path}?${searchStr}`
 }
 
-export function requestToOldIais(url, search, https) {
+export function requestToOldIais(url, search, https, server = 'xiais') {
 
     return new Promise((resolve, reject) => {
 
         let iframe = document.createElement('iframe')
 
         iframe.name = Date.now()
-        iframe.src = getUrlForOldIais(url, search, https)
+        iframe.src = getUrlForOldIais(url, search, https, server)
         iframe.style.display = 'none'
 
         iframe.addEventListener('load', () => {
@@ -62,7 +62,7 @@ export function checkAuthInOldIais() {
         let iframe = document.createElement('iframe')
         iframe.style.display = 'none'
         iframe.name = Date.now()
-        iframe.src = 'https://niais2.kemsu.ru/dekanat/eios-next-sync/check-auth.htm'
+        iframe.src = 'https://xiais.kemsu.ru/dekanat/eios-next-sync/check-auth.htm'
 
         let handler = e => {
             resolve(e.data)
@@ -92,7 +92,7 @@ export function syncWithOldIais(htmFileName) {
         let iframe = document.createElement('iframe')
         iframe.style.display = 'none'
         iframe.name = Date.now()
-        iframe.src = `https://niais2.kemsu.ru/dekanat/eios-next-sync/${htmFileName}.htm`
+        iframe.src = `https://xiais.kemsu.ru/dekanat/eios-next-sync/${htmFileName}.htm`
 
         let handler = e => {
             resolve(e.data)
