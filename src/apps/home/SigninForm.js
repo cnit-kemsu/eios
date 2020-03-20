@@ -7,6 +7,47 @@ import { isAccessTokenValid, auth, requestToOldIais } from 'share/utils'
 import { textFieldContainerCss, submitButtonCss, submitButtonContainerCss } from './authFormStyle'
 
 
+function authInOldSystem(login, password, url, server) {
+
+    return new Promise((resolve, reject) => {
+
+        let cancel = false
+
+        setTimeout(() => {
+            cancel = true
+            reject()
+        }, 15000);
+
+        (async () => {
+
+            await requestToOldIais(url, {
+                login: login,
+                password: encodeURI(password),
+                _t: Date.now()
+            }, true, server)
+
+            await requestToOldIais(url, {
+                login: login,
+                password: encodeURI(password),
+                _t: Date.now()
+            }, true, server)
+
+            if (!cancel) resolve();
+
+        })()
+
+    });
+
+}
+
+
+const oldSystemAuthUrls = [
+    { url: 'entrant_2019/security/index_next.htm', server: 'xiais' },
+    { url: 'restricted/index_next.htm', server: 'xiais' },
+    { url: 'restricted/index_next.htm', server: 'niais' }
+]
+
+
 export default function SigninForm({ onMessage, setError }) {
 
     const [authInProgress, setAuthInProgress] = useState(false)
@@ -28,11 +69,20 @@ export default function SigninForm({ onMessage, setError }) {
 
             const { backUrl } = queryString.parse(location.search)
 
-            await requestToOldIais('restricted/index_next.htm', {
-                login: login,
-                password: encodeURI(password),
-                _t: Date.now()
-            }, true)
+            // По непонятным причинам при одном запросе к старой системе для авторизации, эта авторизация не срабатывает
+
+            const oldSystemUrl = oldSystemAuthUrls[Math.round(Math.random())]            
+
+            try {
+                await authInOldSystem(login, password, oldSystemUrl.url, oldSystemUrl.server)                
+            } catch (err) {
+                try {                
+                    await authInOldSystem(login, password, oldSystemAuthUrls[2].url, oldSystemAuthUrls[2].server)
+                }catch(err) {
+                    alert("Извините, в данный момент сервера загружены. Попробуйте войти позднее.")
+                    return
+                }
+            }
 
             if (/[а-яА-Я]+/.test(login) || /[а-яА-Я]+/.test(password)) {
 
