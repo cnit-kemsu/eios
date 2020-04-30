@@ -14,7 +14,7 @@
     "@kemsu/eios-ui": "file:../../@kemsu/eios-ui",
     "@kemsu/react-routing": "file:../../@kemsu/react-routing",
     "date-input-polyfill": "^2.14.0",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "jquery-datepicker": "^1.12.3",
     "jwt-decode": "^2.2.0",
     "normalize.css": "^8.0.1",
