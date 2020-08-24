@@ -22,7 +22,8 @@ export {
     redirectToOldIais,
     requestToOldIais,
     syncWithOldIais,
-    startSyncWithOldIais
+    startSyncWithOldIais,
+    authInOldIais
 } from './old-iais'
 
 

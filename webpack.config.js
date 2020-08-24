@@ -28,9 +28,10 @@ module.exports = (env, argv) => ({
     },
     devtool: argv.mode === 'production' ? false : 'source-map',
     devServer: {
+        open: true,
         contentBase: __dirname + '/dist',
         historyApiFallback: true,
-        host: '0.0.0.0',
+        host: 'localhost',
         hot: true,
         disableHostCheck: true,
         headers: {

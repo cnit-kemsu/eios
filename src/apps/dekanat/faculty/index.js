@@ -130,7 +130,7 @@ export const layoutProps = {
         { ext: true, title: 'Операции', url: getUrlForOldIais('dekanat/oper/index.htm') },
         { ext: true, title: 'Группы', url: getUrlForOldIais('dekanat/group/index.htm') },
         { ext: true, title: 'Итоговая аттестация', url: getUrlForOldIais('dekanat/5/index.htm') },
-        { title: "Импорт плана", url: "/dekanat/faculty/import-plan" }
+        //{ title: "Импорт плана", url: "/dekanat/faculty/import-plan" }
     ]
 }
 

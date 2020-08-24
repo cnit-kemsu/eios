@@ -2,12 +2,12 @@ import React, { useState, useCallback } from 'react'
 import queryString from 'query-string'
 import { Button, TextField, Spinner, useTextField } from '@kemsu/eios-ui'
 import { Link, HistoryManager } from '@kemsu/react-routing'
-import { isAccessTokenValid, auth, requestToOldIais } from 'share/utils'
+import { isAccessTokenValid, auth, /*requestToOldIais,*/ authInOldIais } from 'share/utils'
 
 import { textFieldContainerCss, submitButtonCss, submitButtonContainerCss } from './authFormStyle'
 
 
-function authInOldSystem(login, password, url, server) {
+/*function authInOldSystem(login, password, url, server) {
 
     return new Promise((resolve, reject) => {
 
@@ -38,13 +38,15 @@ function authInOldSystem(login, password, url, server) {
 
     });
 
-}
+}*/
 
 
 const oldSystemAuthUrls = [
+    { url: 'restricted/index_next.htm', server: 'riais' },
+    { url: 'restricted/index_next.htm', server: 'niais' },    
     { url: 'entrant_2019/security/index_next.htm', server: 'xiais' },
     { url: 'restricted/index_next.htm', server: 'xiais' },
-    { url: 'restricted/index_next.htm', server: 'niais' }
+    
 ]
 
 
@@ -67,18 +69,18 @@ export default function SigninForm({ onMessage, setError }) {
 
             await auth(login, password, null, true)
 
-            const { backUrl } = queryString.parse(location.search)
-
-            // По непонятным причинам при одном запросе к старой системе для авторизации, эта авторизация не срабатывает
+            const { backUrl } = queryString.parse(location.search)            
 
             const oldSystemUrl = oldSystemAuthUrls[Math.round(Math.random())]            
 
             try {
-                await authInOldSystem(login, password, oldSystemUrl.url, oldSystemUrl.server)                
+                await authInOldIais(login, password, oldSystemUrl.url, oldSystemUrl.server)
             } catch (err) {
+                console.log(err)
                 try {                
-                    await authInOldSystem(login, password, oldSystemAuthUrls[2].url, oldSystemAuthUrls[2].server)
-                }catch(err) {
+                    await authInOldIais(login, password, oldSystemAuthUrls[2].url, oldSystemAuthUrls[2].server)
+                } catch(err) {
+                    console.log(err)
                     alert("Извините, в данный момент сервера загружены. Попробуйте войти позднее.")
                     return
                 }
