@@ -29,6 +29,7 @@ async function getLayoutPropsFromModule(module, forceUpdate) {
 class InvalidAppModuleError extends Error { }
 
 
+
 export default function AppRouter({ setError, appName }) {    
 
     const [{ App, Layout, layoutProps }, setState] = useReducer(
@@ -49,7 +50,7 @@ export default function AppRouter({ setError, appName }) {
                 setLoading(true)
 
                 // импортируем модуль приложения
-                let appModule = await import(
+                let appModule =await import(
                     /* webpackMode: "lazy" */
                     /* webpackChunkName: "apps" */
                     `../apps/${appName}/index.js`

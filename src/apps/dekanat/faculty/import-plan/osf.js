@@ -1,7 +1,7 @@
 import $ from 'jquery'
 
 
-export function getBlocksFrom() {
+export function getBlocksFrom(self, xml) {
     return [{
         code: 'Б1',
         name: 'Дисциплины (модули)'
@@ -48,7 +48,9 @@ export function getPlanRowsFrom(self, xml) {
 
     for (let discNode of discNodes) {
 
-        discNode = $(discNode)        
+        discNode = $(discNode)
+
+        //let discType = discNode.attr('type')
 
         let semesterNodes = discNode.find('semester')
 
@@ -168,7 +170,7 @@ function getPractices(xml, index) {
     return practiceRows
 }
 
-export function getPracticesFrom() {
+export function getPracticesFrom(/*self, xml, kind*/) {
     return []
 }
 

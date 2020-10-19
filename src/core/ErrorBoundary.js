@@ -21,7 +21,7 @@ export default class ErrorBoundary extends React.Component {
                     height: '100vh'
                 }}>
                     <h1>Возникла ошибка!</h1>
-                    <pre>{error.stack || error.message || error}</pre>
+                    <p>{error.stack || error.message || error}</p>
                 </div>
             )
         }

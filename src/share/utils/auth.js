@@ -61,7 +61,7 @@ export async function logout() {
     localStorage.removeItem('facultyInfo')
     document.cookie = `accessToken=; path=/; domain=.kemsu.ru; expires=${(new Date(0)).toUTCString()}`
 
-    await requestToOldIais('restricted/logoff.htm', null, true, 'riais')
+    await requestToOldIais('restricted/logoff.htm', null, true, 'xiais')
 
     if (location.pathname == '/home') location = '/home'
     else {

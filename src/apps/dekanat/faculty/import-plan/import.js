@@ -22,12 +22,9 @@ const ErrorOutput = ({ err }) => (
     </div>
 )
 
-const typeGenMap = {
-    xml: xmlGen,
-    plx: plxGen,
-    osf: osfGen
+function reverseDate(date) {
+    return date.split('-').reverse().join('-')
 }
-
 
 function isRealNumber(numb) {
     return typeof numb === 'string' && numb.indexOf(".") !== -1
@@ -41,10 +38,14 @@ function convNumbToOracleFmt(numb) {
 }
 
 export default async function importPlan(self, xml, type) {
+    try {      
 
-    try {
+        let gen
 
-        const gen = typeGenMap[type]
+        // определяем формат файла с планом и выбираем соотвествующий генератор
+        if (type === 'xml') gen = xmlGen
+        else if (type === 'plx') gen = plxGen
+        else if (type === 'osf') gen = osfGen
 
         let planInfo = gen.getPlanInfo(self, xml)
 
@@ -56,6 +57,7 @@ export default async function importPlan(self, xml, type) {
             return
         }
 
+
         if (+planInfo.years > +self.state.plan.STUDY_TERM.replace(',', '.')) {
             self.setState({
                 message: `Срок обучения в плане (${planInfo.years}) превышает срок обучения в стандарте (${self.state.plan.STUDY_TERM})!`,
@@ -64,6 +66,7 @@ export default async function importPlan(self, xml, type) {
             return
         }
 
+        // считываем данные из файла с планом
         let blocks = gen.getBlocksFrom(self, xml)
         let planRows = gen.getPlanRowsFrom(self, xml)
         let teachingPractices = gen.getPracticesFrom(self, xml, "У")
@@ -73,21 +76,62 @@ export default async function importPlan(self, xml, type) {
         let simPractices = gen.getPracticesFrom(self, xml, "С")
         let prepVKRPractices = gen.getPracticesFrom(self, xml, "Д")
         let prepGIAPractices = gen.getPracticesFrom(self, xml, "Г")
-        let graphic = gen.getGraphicFrom(self, xml)
+        let graphic = gen.getGraphicFrom(self, xml)        
+        
 
-        // Определим строки плана, которые являются модулями
+        // для каждой строки плана обходим дочерние элементы (если они есть)
         for (const planRow of planRows) {
-            for (const { code: childCode } of planRows) {
-                if (planRow.code.length < childCode.length && childCode.startsWith(planRow.code + '.')) {
-                    planRow.discTypeId = 7540
-                }
+            for (const childPlanRow of planRows) {
+                if (planRow.code !== childPlanRow.code /*&& childCode.startsWith(planRow.code)*/) {
 
+
+
+                    let childCodeParts = childPlanRow.code.split('.')
+                    let planRowCodeParts = planRow.code.split('.')
+
+                    let flag = true;
+
+                    // является ли элемент дочерним
+                    for (let i = 0; i < planRowCodeParts.length; ++i) {
+                        if (planRowCodeParts[i] !== childCodeParts[i]) {
+                            flag = false;
+                            break;
+                        }
+                    }
+
+                    // если дочерний
+                    if (flag) {
+
+                        if (planRow.discTypeId === 780) {
+                            childPlanRow.discTypeId = 206
+                        } else {
+                            planRow.discTypeId = 7540 // родитель становится модулем
+                        }
+
+                        // для физ.культуры убираем семестры, так как они проставляются вручную
+                        if(childPlanRow.physCulture) {
+
+                            childPlanRow.noconnSemesters = childPlanRow.semesters.length > 0 ? childPlanRow.semesters : planRow.semesters                                                                            
+                            childPlanRow.semesters = []                            
+                        }
+                    }
+                }
+            }
+        }            
+
+        /*console.log('planRows', planRows)
+        return*/
+
+        let maxCourseByGraphics = 0
+
+        for (let g of graphic) {
+            if (g.course < maxCourseByGraphics) {
+                maxCourseByGraphics = g.course
             }
         }
 
         let subblocks = []
 
-        // Определим подблоки и добавим их к списку строк плана
         blocks.forEach(function (block) {
             if (block.isSubblock) {
                 subblocks.push({
@@ -100,15 +144,14 @@ export default async function importPlan(self, xml, type) {
 
         planRows = subblocks.concat(planRows)
 
-        // Объединяем практики со строками планами
+        // Объединяем практики с остальными дисциплинами
         planRows = planRows.concat(teachingPractices).concat(prodPractices).concat(searchingPractices)
             .concat(undergradPractices).concat(simPractices).concat(prepVKRPractices).concat(prepGIAPractices)
 
-        // Сортируем строки плана по коду (для того, чтобы родители создавались раньше дочерних элементов)
-        // TODO: возможно лишнее, так как ниже будет еще одна сортировка. Удалить?
         planRows.sort((a, b) => (a.code < b.code ? -1 : (a.code > b.code ? 1 : 0)))
 
         // Для заочных планов перенумеруем семестры. Первые семестры каждого курса станут установочными
+
         if (planInfo.learnForm.toLowerCase() === 'заочная') {
             planRows = planRows.map(planRow => {
 
@@ -136,6 +179,17 @@ export default async function importPlan(self, xml, type) {
             })
         }
 
+        let maxSem = 0
+
+        for (let planRow of planRows) {
+
+            if (!planRow.semesters) continue
+
+            for (let sem of planRow.semesters) {
+                if ((+sem.num) > maxSem) maxSem = +sem.num
+            }
+        }
+
         let parents = {};
 
         planRows.forEach(function (row) {
@@ -147,14 +201,15 @@ export default async function importPlan(self, xml, type) {
                 code = "Б1.В.ДВ.0";
             }
 
-            let parts = code.split(".");
+            var parts = code.split(".");
+            for (var i = 1; i < parts.length - 1; ++i) {
 
-            for (let i = 1; i < parts.length - 1; ++i) {
+                var parentCode = parts.slice(0, i + 1).join(".")
+                var parentType = !parentCode.endsWith("ДВ") && parentCode.indexOf("ДВ") != -1 ? 1249 : 7540
 
-                let parentCode = parts.slice(0, i + 1).join(".")
-                let parentType = !parentCode.endsWith("ДВ") && parentCode.indexOf("ДВ") != -1 ? 1249 : 7540
-
-                if (planRows.some((planRow) => planRow.code === parentCode)) continue
+                if (planRows.some(function (planRow) { return planRow.code === parentCode; })) {
+                    continue
+                }
 
                 if (!parents[parentCode]) {
                     parents[parentCode] = parentType
@@ -162,7 +217,6 @@ export default async function importPlan(self, xml, type) {
             }
         })
 
-        // Определеям максимальный номер семестра, для которого есть данные
         let maxSemNum = 0
 
         for (let pr of planRows) {
@@ -171,25 +225,31 @@ export default async function importPlan(self, xml, type) {
 
             for (let semester of pr.semesters) {
                 let { num } = semester
-                if (maxSemNum < num) maxSemNum = num
+                if (maxSemNum < num) {
+                    maxSemNum = num
+                }
             }
         }
 
-        const maxCourseNum = maxSemNum / 2
+        let maxCourseNum = 0
+
+        /*if (planInfo.learnForm === 'заочная') {
+            maxCourseNum = maxSemNum / 3
+        } else {*/
+        maxCourseNum = maxSemNum / 2
+
+        /*}*/
 
         let yyyy = Math.ceil(+(planInfo.years.replace(',', '.')))
 
-        // Возможно срок обучения не совпадает с количеством курсов, проверим это
         if (maxCourseNum > yyyy) {
 
             let hasCourseMap = {}
 
-            // Определим кол-во курсов по графику
             for (let g of graphic) {
                 hasCourseMap[g.course] = true
             }
 
-            // Сравним
             if (Object.keys(hasCourseMap).length > yyyy) {
                 self.setState({ message: 'Срок обучения не совпадает с количеством курсов!', messageType: "error", importing: false })
                 return
@@ -216,23 +276,28 @@ export default async function importPlan(self, xml, type) {
             }
         }
 
-        /*console.log('planInfo', planInfo)
-        console.log('blocks', blocks)
-        console.log('planRows', planRows)
-        console.log('teachingPractices', teachingPractices)
+        //console.log('planInfo', planInfo)
+        //console.log('blocks', blocks)
+        //console.log('planRows', planRows)
+        /*console.log('teachingPractices', teachingPractices)
         console.log('prodPractices', prodPractices)
         console.log('searchingPractices', searchingPractices)
         console.log('undergradPractices', undergradPractices)
         console.log('simPractices', simPractices)
         console.log('prepVKRPractices', prepVKRPractices)
         console.log('prepGIAPractices', prepGIAPractices)
-        console.log('graphic', graphic)
-        return*/
+        console.log('graphic', graphic)*/
+        //return
 
-        const { planId, plan, specialization, planType } = self.state
+        const { planId, plan, specialization, planType, /*studyTerm*/ } = self.state
 
         // Проверка отсутствующих блоков в стандарте 
-        let response = await fetchApi(`dekanat/plans/${planId}/plain-discipline-tree`)
+        let response = await fetchApi(`dekanat/plans/${planId}/plain-discipline-tree`, {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
 
         if (!response.ok) {
             self.setState({ message: <ErrorOutput err={await response.json()} />, messageType: "error", importing: false })
@@ -243,8 +308,8 @@ export default async function importPlan(self, xml, type) {
 
         let missingBlocks = []
 
-        blocks.forEach((blockFromXml) => {
-            if (!data.tree.some((blockFromStandard) => {
+        blocks.forEach(function (blockFromXml) {
+            if (!data.tree.some(function (blockFromStandard) {
                 return blockFromXml.isSubblock || blockFromXml.code === "Б4" || blockFromStandard.code === blockFromXml.code;
             })) {
                 missingBlocks.push(blockFromXml);
@@ -265,9 +330,9 @@ export default async function importPlan(self, xml, type) {
                             ))
                         }
                         <br />
-                        <a href='https://niais2.kemsu.ru/dekanat/plan/gost/addplan.htm'>Перейти к созданию нового стандарта</a>
+                        <a href='https://xiais.kemsu.ru/dekanat/plan/gost/addplan.htm'>Перейти к созданию нового стандарта</a>
                         <span style={{ margin: "0px 4px" }}>|</span>
-                        <a href={`https://niais2.kemsu.ru/dekanat/plan/gost/dochoiceplan.htm?in_id=${planId}`}>Перейти к редактированию текущего стандарта</a>
+                        <a href={`https://xiais.kemsu.ru/dekanat/plan/gost/dochoiceplan.htm?in_id=${planId}`}>Перейти к редактированию текущего стандарта</a>
 
                     </div>
                 ),
@@ -277,9 +342,14 @@ export default async function importPlan(self, xml, type) {
             return
         }
 
-        // Проверяем отсутствующие в словаре названия дисциплин
+        /*console.log(planRows, blocks)
+        return*/
 
-        let response2 = await fetchApi("glossary/dictionaries/dic_education/missing-item-titles", {
+        response = await fetchApi("glossary/dictionaries/dic_education/missing-item-titles", {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
             method: "post",
             body: JSON.stringify({
                 group: "132",
@@ -287,12 +357,12 @@ export default async function importPlan(self, xml, type) {
             })
         })
 
-        if (!response2.ok) {
-            self.setState({ message: <ErrorOutput err={await response2.json()} />, messageType: "error", importing: false, forcedImport: false })
+        if (!response.ok) {
+            self.setState({ message: <ErrorOutput err={await response.json()} />, messageType: "error", importing: false, forcedImport: false })
             return
         }
 
-        let missingDisciplines = (await response2.json()).missingItems
+        let missingDisciplines = (await response.json()).missingItems
 
         // Если имеются дисциплины, отсутствующие в словаре
         if (missingDisciplines.length > 0) {
@@ -365,21 +435,18 @@ export default async function importPlan(self, xml, type) {
             await promise
         }
 
-        // Объединяем ранее найденные родительские элементы (явно не прописанные в файле плана) со строками плана
-        let planRows2 = (Object.keys(parents).map(function (key) {
+        planRows = (Object.keys(parents).map(function (key) {
             return {
                 code: key,
                 discTypeId: parents[key]
             }
         })).concat(planRows)
 
-        // Сортируем
-        //planRows2.sort((a, b) => (a.code < b.code ? -1 : (a.code > b.code ? 1 : 0)))
+        planRows.sort((a, b) => (a.code < b.code ? -1 : (a.code > b.code ? 1 : 0)))        
 
-        // Определяем наличие часов и зетов с вещественным значением
         let realHourFlag = false
 
-        for (const { semesters = [] } of planRows2) {
+        for (const { semesters = [] } of planRows) {
             for (const s of semesters) {
 
                 const { kre, krgia, krkp, krkr, krpr, ksr, lab, lecture, pract, srs, zet } = s
@@ -398,16 +465,15 @@ export default async function importPlan(self, xml, type) {
             }
         }
 
-        // В случае наличия вещественых значений у часов или зетов, запросим подтверждение импорта
         if (realHourFlag && !self.state.forcedImport) {
-            self.setState({ needConfirmImport: true, message: 'План содержит часы/ЗЕТы значения которых не является целым.', messageType: 'warning' })
+            self.setState({ needConfirmImport: true, message: 'План содержит часы/ЗЕТы значения которых не являются целым.', messageType: 'warning' })
             return
         }
 
-        const reqPlanData = {
-            study_term: planInfo.years,
-            learn_start_date: new Date(self.startDateRef.current.value).toLocaleDateString(),
-            learn_end_date: new Date(self.endDateRef.current.value).toLocaleDateString(),
+        /*const reqPlanData = {
+            study_term: planInfo.years, //maxCourseNum,//maxCourseByGraphics,//self.state.plan.STUDY_TERM,//planInfo.years,
+            learn_start_date: reverseDate(self.startDateRef.current.value),
+            learn_end_date: reverseDate(self.endDateRef.current.value),
             plan_id: +planId,
             form_learn_id: +plan.FORM_LEARN_ID,
             faculty_id: +plan.FACULTY_ID,
@@ -418,24 +484,45 @@ export default async function importPlan(self, xml, type) {
             plan_status_id: 122, // статус - редактируется
             plan_kind_id: +planType,
             date_confirm: planInfo.approvalDate && planInfo.approvalDate.toLocaleDateString()
-        }       
+        }*/
 
-        // Создадим план
-        let response3 = await fetchApi('dekanat/plans/importer', {
+        response = await fetchApi('dekanat/plans/importer', {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
             method: "post",
-            body: JSON.stringify(reqPlanData)
+            body: JSON.stringify({
+                study_term: planInfo.years, //maxCourseNum,//maxCourseByGraphics,//self.state.plan.STUDY_TERM,//planInfo.years,
+                learn_start_date: reverseDate(self.startDateRef.current.value),
+                learn_end_date: reverseDate(self.endDateRef.current.value),
+                plan_id: +planId,
+                form_learn_id: +plan.FORM_LEARN_ID,
+                faculty_id: +plan.FACULTY_ID,
+                speciality_id: +plan.SPECIALITY_ID,
+                specialization_id: (+specialization) === 0 ? null : +specialization,
+                qualification_id: +plan.QUALIFICATION_ID,
+                plan_type_id: 125,
+                plan_status_id: 122, // статус - редактируется
+                plan_kind_id: +planType,
+                date_confirm: planInfo.approvalDate && planInfo.approvalDate.toLocaleDateString()
+            })
         })
 
-        if (!response3.ok) {
-            self.setState({ message: <ErrorOutput err={await response3.json()} />, messageType: "error", importing: false, forcedImport: false })
+
+        if (!response.ok) {
+            self.setState({ message: <ErrorOutput err={await response.json()} />, messageType: "error", importing: false, forcedImport: false })
             return
         }
 
-        // ID созданного плана
-        let newPlanId = (await response3.json()).result
+        let newPlanId = (await response.json()).result
 
-        // Создаем графики
-        let response4 = await fetchApi("dekanat/plans/importer/graphics", {
+
+        response = await fetchApi("dekanat/plans/importer/graphics", {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
             method: "post",
             body: JSON.stringify({
                 planId: newPlanId,
@@ -443,29 +530,31 @@ export default async function importPlan(self, xml, type) {
             })
         })
 
-        if (!response4.ok) {
-            self.setState({ message: <ErrorOutput err={await response4.json()} />, messageType: "error", importing: false, forcedImport: false })
+        if (!response.ok) {
+            self.setState({ message: <ErrorOutput err={await response.json()} />, messageType: "error", importing: false, forcedImport: false })
             return
         }
 
-        // Заносим строки плана
-        let response5 = await fetchApi("dekanat/plans/importer/plan-rows", {
+        response = await fetchApi("dekanat/plans/importer/plan-rows", {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
             method: "post",
             body: JSON.stringify({
                 planId: newPlanId,
-                planRows: planRows2
+                planRows: planRows
             })
         })
 
-        if (!response5.ok) {
-            self.setState({ message: <ErrorOutput err={await response5.json()} />, messageType: "error", importing: false, forcedImport: false })
+        if (!response.ok) {
+            self.setState({ message: <ErrorOutput err={await response.json()} />, messageType: "error", importing: false, forcedImport: false })
             return
         }
 
-        // Переходим к созданному плану
-        window.location = `https://niais2.kemsu.ru/dekanat/plan/work/dochoiceplan.htm?x=7&y=10&in_id=${newPlanId}`
+        window.location = `https://xiais.kemsu.ru/dekanat/plan/work/dochoiceplan.htm?x=7&y=10&in_id=${newPlanId}`
 
     } catch (err) {
-        self.setState({ message: err.stack || err.message, messageType: 'error', importing: false })
+        self.setState({ message: err.message, messageType: 'error', importing: false })
     }
 }

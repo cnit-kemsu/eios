@@ -39,7 +39,7 @@ export default function Sidebar({ logoText, hide, logoSize, height, links, backU
                                 width: '92px',
                                 height: '28px',
                                 borderRadius: '14.4px'
-                            }} flat fillable transparent colorStyle={style.buttonColorStyle ? style.buttonColorStyle : "light"} elementType={Link} to={backUrl || location.pathname.split('/').slice(0, -1).join('/') || "/"}>Назад</Button>
+                            }} flat fillable transparent colorStyle={style.buttonColorStyle ? style.buttonColorStyle : "light"} elementType={backUrl?.startsWith('http') ? 'a' : Link} { ...{[backUrl?.startsWith('http') ? 'href' : "to"]: backUrl || location.pathname.split('/').slice(0, -1).join('/') || "/" }}>Назад</Button>
                         </div>
                     </nav>
                     <div css={forumBtnContainerCss}>

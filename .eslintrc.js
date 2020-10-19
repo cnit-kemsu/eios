@@ -28,6 +28,9 @@ module.exports = {
         "react/react-in-jsx-scope": 1,
         "no-unused-vars": 1,
         "react-hooks/rules-of-hooks": 1,
-        "react-hooks/exhaustive-deps": 1
+        "react-hooks/exhaustive-deps": 1,
+        "no-empty": ["error", {
+            "allowEmptyCatch": true
+        }]
     }
 };

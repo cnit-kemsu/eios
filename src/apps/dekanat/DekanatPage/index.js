@@ -5,6 +5,7 @@ import { HistoryManager } from '@kemsu/react-routing'
 import { useAsync } from 'share/hooks'
 import Loading from 'share/eios/Loading'
 import { getFacultyInfo, setFacultyInfo, fetchApi, requestToOldIais } from 'share/utils'
+import { getUrlForOldIais } from 'share/utils'
 
 import { topbarLinks } from '../links'
 
@@ -102,7 +103,7 @@ export const pageProps = {
 
 export const layoutProps = {
     topbarLinks,
-    backUrl: '/employee-area',
+    backUrl: '/home/employee-area',
     contentTitle: 'Деканат'
 }
 
@@ -128,6 +129,9 @@ export const funcLayoutProps = {
                 }
             }
         },
-        { title: 'Статистика', url: '/dekanat/statistics' }
+        { /*target: '_blank',*/ title: "Отчетность", url: getUrlForOldIais("dekanat/rep/index.htm"), ext: true },
+        { /*target: '_blank',*/ title: "Рейтинг обучающихся", url: '/home/personal-area/rating-for-teachers' /*getUrlForOldIais("dekanat/uspev/reit/index.htm")*/ },
+        { /*target: '_blank',*/ title: "Успеваемость обучающихся", url: getUrlForOldIais("dekanat/studs/index.htm"), ext: true },
+        { /*target: '_blank',*/ title: "Распределение выпускников", url: getUrlForOldIais("dekanat/raspred/index.htm"), ext: true }
     ],
 }

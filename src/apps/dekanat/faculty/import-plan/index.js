@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, useRef, useCallback } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 import {
     Select, Message, Button, Checkbox, useSelect
 } from '@kemsu/eios-ui'
@@ -23,6 +23,11 @@ async function fetchPlan() {
 
     // Считываем выбранный в iais стандарт
     let planId = await syncWithOldIais('get-plan-standard')
+
+    if(typeof planId === "object") return ({
+        message: "Возникла ошибка! Попробуйте перезагрузить страницу.",
+        messageType: "error"
+    })
 
     if (!planId) {
         return ({ message: "Не выбран стандарт!", messageType: "error" })
@@ -261,7 +266,7 @@ export function Page({ setError }) {
 
             {
                 needConfirmImport && (
-                    <Checkbox checked={forcedImport} onChange={toggleForcedImport}>Импортировать план с вещественными значениями часов/ЗЕТов (нужно будет снова нажать кнопку "Импортировать")</Checkbox>
+                    <Checkbox checked={forcedImport} onClick={toggleForcedImport}>Импортировать план с вещественными значениями часов/ЗЕТов (нужно будет снова нажать кнопку "Импортировать")</Checkbox>
                 )
             }
 
@@ -274,11 +279,10 @@ export const pageProps = {
 }
 
 export const layoutProps = {
-    contentTitle: 'Импорт плана'
+    contentTitle: 'Импорт плана',
+    backUrl: 'http://xiais.kemsu.ru/dekanat/plan/work/selworkplan.htm'
 }
 
 export const funcLayoutProps = {
     topbarLinks
 }
-
-export { default as Layout } from 'share/eios/layout/Layout'

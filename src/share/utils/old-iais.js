@@ -2,7 +2,7 @@
 import { logout, getUserInfo, isAccessTokenValid } from './auth'
 
 
-export function authInOldIais(login, password, appUrl, server = 'riais') {
+export function authInOldIais(login, password, appUrl, server = 'xiais') {
 
     return new Promise((resolve, reject) => {
 
@@ -11,26 +11,25 @@ export function authInOldIais(login, password, appUrl, server = 'riais') {
         iframe.name = Date.now()
 
         document.body.appendChild(iframe)
-        iframe.src = `https://riais.kemsu.ru/dekanat/eios-next-sync/auth.htm`        
+        iframe.src = `https://xiais.kemsu.ru/dekanat/eios-next-sync/auth.htm`        
 
         let handler = async (e) => {     
             
-            if(e.data !== "auth") return            
+            if(e.data !== "auth") return                        
 
-            iframe.parentNode.removeChild(iframe)
-            window.removeEventListener('message', handler)
-
-            setTimeout(() => resolve(), 500)            
-        }        
+            setTimeout(() => {
+                iframe.parentNode.removeChild(iframe)
+                window.removeEventListener('message', handler)
+                resolve()
+            }, 1000)
+        }
 
         let messagePosted = false
 
         iframe.addEventListener("load", () => {
             if (!messagePosted) {
                 messagePosted = true
-
                 window.addEventListener("message", handler, false)
-
                 iframe.contentWindow.postMessage(JSON.stringify({ login, password, server, appUrl }), "*")               
             }
         })
@@ -104,7 +103,7 @@ export function checkAuthInOldIais() {
         let iframe = document.createElement('iframe')
         iframe.style.display = 'none'
         iframe.name = Date.now()
-        iframe.src = 'https://riais.kemsu.ru/dekanat/eios-next-sync/check-auth.htm'
+        iframe.src = 'https://xiais.kemsu.ru/dekanat/eios-next-sync/check-auth.htm'
 
         let handler = e => {
             resolve(e.data)
@@ -134,7 +133,7 @@ export function syncWithOldIais(htmFileName) {
         let iframe = document.createElement('iframe')
         iframe.style.display = 'none'
         iframe.name = Date.now()
-        iframe.src = `https://riais.kemsu.ru/dekanat/eios-next-sync/${htmFileName}.htm`
+        iframe.src = `https://xiais.kemsu.ru/dekanat/eios-next-sync/${htmFileName}.htm`
 
         let handler = e => {
             resolve(e.data)

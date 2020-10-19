@@ -6,6 +6,8 @@ const CopyPlugin = require('copy-webpack-plugin')
 
 const pkg = JSON.parse(fs.readFileSync(__dirname + '/package.json'))
 
+
+
 module.exports = (env, argv) => ({
     entry: [
         'react-hot-loader/patch',
@@ -47,16 +49,17 @@ module.exports = (env, argv) => ({
             { from: 'src/assets', to: 'assets', force: true },
         ])
     ],
-    resolve: {
-        symlinks: false,
-        modules: [path.resolve(__dirname, 'node_modules'), ...fs.readdirSync(path.resolve(__dirname, 'src/apps')).map(appName => path.resolve(__dirname, 'src/apps', appName, 'node_modules'))],
+    resolve: {           
+        symlinks: false,        
+        modules: [path.resolve('./node_modules')],
         alias: {
             'share': path.resolve(__dirname, 'src/share'),
             'react-dom': '@hot-loader/react-dom'
         }
     },
     module: {
-        rules: [
+        rules: [          
+
             {
                 enforce: 'pre',
                 test: /\.js$/,
@@ -82,19 +85,19 @@ module.exports = (env, argv) => ({
                 use: [
                     'style-loader',
                     'css-loader',
-                ],
+                ]                
             },
             {
                 test: /\.(png|svg|jpg|gif)$/,
                 use: [
                     'file-loader',
-                ],
+                ]                
             },
             {
                 test: /\.(woff|woff2|eot|ttf|otf)$/,
                 use: [
                     'file-loader',
-                ],
+                ]                
             }
         ]
     }
