@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { fetchDevApi as fetchApi } from 'public/utils/api'
+import { fetchDevApi as fetchApi} from 'share/utils'
 
 import {
     Table,
@@ -263,7 +263,7 @@ export default class Building extends React.Component {
                                     <TableRowColumn>{item.Number}</TableRowColumn>
                                     <TableRowColumn>{item.Name}</TableRowColumn>
                                     <TableRowColumn>{item.TypeName}</TableRowColumn>
-                                    <TableRowColumn>{item.Address}</TableRowColumn>
+                                    <TableRowColumn style={{whiteSpace: "break-spaces"}}>{item.Address}</TableRowColumn>
 
                                     <TableRowColumn style={{ textAlign: "center" }}>
 

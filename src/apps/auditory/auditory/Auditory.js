@@ -1,5 +1,5 @@
-import React from 'react'
-import { fetchApi } from 'public/utils/api'
+import React, {useEffect, useCallback, useState, memo } from 'react'
+import { fetchDevApi as fetchApi} from 'share/utils'
 
 import {
     Table,
@@ -10,7 +10,6 @@ import {
     TableRowColumn,
 } from 'material-ui/Table';
 
-import TextField from 'material-ui/TextField';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 
@@ -20,69 +19,62 @@ import RaisedButton from 'material-ui/RaisedButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import ActionDelete from 'material-ui/svg-icons/action/delete';
 import EditorModeEdit from 'material-ui/svg-icons/editor/mode-edit';
-import ActionDone from 'material-ui/svg-icons/action/done';
-import ContentUndo from 'material-ui/svg-icons/content/undo';
 
 import UpdateAuditoryForm from './UpdateAuditoryForm'
 
 import Loading from '../Loading'
 
-import _ from 'lodash'
+import { debounce } from 'lodash'
 
 
-export default React.memo(function Auditory({
-    setError, buildingList, loading, softwareList, nameList, equipmentList,
+export default memo(function Auditory({
+    buildingList, softwareList, nameList, equipmentList,
     updateAuditoryList, auditoryList, auditoryTypeList
 }) {
+    
+    const [addModeBuildingId, setAddModeBuildingId] = useState(buildingList.length > 0 ? buildingList[0].Id : null)
+    const [buildingId, setBuildingId] = useState()
+    const [typeIdFilter, setTypeIdFilter] = useState()
+    const [nameFilter, setNameFilter] = useState()
+    
+    const [editModeData, setEditModeData] = useState()
+    const [addMode, setAddMode] = useState(false)
 
-    const [showEditForm, setShowEditForm] = React.useState(false)
-    const [addModeBuildingId, setAddModeBuildingId] = React.useState(buildingList.length > 0 ? buildingList[0].Id : null)
-    const [buildingId, setBuildingId] = React.useState()
-    const [typeIdFilter, setTypeIdFilter] = React.useState()
-    const [nameFilter, setNameFilter] = React.useState()
-    const [addModeAudArea, setAddModeAudArea] = React.useState()
-    const [addModeCountOfSeats, setAddModeCountOfSeats] = React.useState()
-    const [addModeAuditoryTypeId, setAddModeAuditoryTypeId] = React.useState(auditoryTypeList.length > 0 ? auditoryTypeList[0].Id : null)
-    const [editModeData, setEditModeData] = React.useState()
-    const [addMode, setAddMode] = React.useState(false)
-
-    const [loadingAuditoryList, setLoadingAuditoryList] = React.useState(false)
+    const [loadingAuditoryList, setLoadingAuditoryList] = useState(false)
 
 
-
-    React.useEffect(() => {
+    useEffect(() => {
 
         if (buildingList.length > 0)
             setAddModeBuildingId(buildingList[0].Id)
-
-        if (auditoryTypeList.length > 0)
-            setAddModeAuditoryTypeId(auditoryTypeList[0].Id)
+        
 
     }, [buildingList, auditoryTypeList])
+    
 
-    const handleChangeBuildingAddMode = React.useCallback((e, i, value) => {
+    const handleChangeBuildingAddMode = useCallback((e, i, value) => {
         setAddModeBuildingId(value)
     }, [])
 
-    const handleClickChooseBuilding = React.useCallback(async () => {
+    const handleClickChooseBuilding = useCallback(async () => {
         setLoadingAuditoryList(true)
         setBuildingId(addModeBuildingId)
         await updateAuditoryList(addModeBuildingId, typeIdFilter)
         setLoadingAuditoryList(false)
-    }, [addModeBuildingId, typeIdFilter])
+    }, [addModeBuildingId, typeIdFilter, updateAuditoryList])
 
-    const handleClickAddAuditory = React.useCallback(() => {
+    const handleClickAddAuditory = useCallback(() => {
         setAddMode(true)
     }, [])
 
-    const applyAudNameFilter = _.debounce((buildingId, typeId, name) => {
+    const applyAudNameFilter = debounce((buildingId, typeId, name) => {
         setNameFilter(name)
         updateAuditoryList(buildingId, typeId, name)
     }, 1000)
 
-    const handleAudNameFilter = React.useCallback((e) => {
+    const handleAudNameFilter = useCallback((e) => {
         applyAudNameFilter(addModeBuildingId, typeIdFilter, e.target.value)
-    }, [addModeBuildingId, typeIdFilter])
+    }, [addModeBuildingId, typeIdFilter, applyAudNameFilter])
 
     const handleClickEditModeBuilder = (data) => {
         return () => setEditModeData({ ...data })
@@ -95,12 +87,7 @@ export default React.memo(function Auditory({
                 return
             }
 
-            try {
-
-                let response = await fetchApi(`auditory/${id}/schedule-links`, {
-                    method: 'get',
-                    throwError: true
-                })              
+            try {                         
 
                 await fetchApi("auditory/" + id, {
                     method: "delete",
@@ -132,14 +119,19 @@ export default React.memo(function Auditory({
         setLoadingAuditoryList(false)
     }
 
-    if (addMode) return <UpdateAuditoryForm buildingId={buildingId} onFinish={onFinishUpdate} auditoryTypeList={auditoryTypeList} />
+    const reset = useCallback(() => {
+        if(addMode) setAddMode(false)
+        if(editModeData) setEditModeData(false)
+    }, [addMode, editModeData])
 
-    if (editModeData) return <UpdateAuditoryForm nameList={nameList} equipmentList={equipmentList} softwareList={softwareList} buildingId={buildingId} onFinish={onFinishUpdate} auditoryTypeList={auditoryTypeList} auditory={editModeData} editMode />
+    if (addMode) return <UpdateAuditoryForm reset={reset} buildingId={buildingId} onFinish={onFinishUpdate} auditoryTypeList={auditoryTypeList} />
+
+    if (editModeData) return <UpdateAuditoryForm reset={reset} nameList={nameList} equipmentList={equipmentList} softwareList={softwareList} buildingId={buildingId} onFinish={onFinishUpdate} auditoryTypeList={auditoryTypeList} auditory={editModeData} editMode />
 
     if (buildingList.length === 0) return <Loading />
 
     return (
-        <div style={{ width: "70%", marginLeft: "15%" }}>
+        <div style={{ width: "90%", marginLeft: "5%" }}>
 
             <br />
 
@@ -157,7 +149,7 @@ export default React.memo(function Auditory({
 
             {buildingId && <RaisedButton onClick={handleClickAddAuditory} labelPosition="after" icon={<ContentAdd />} style={{ marginLeft: "8px" }} label="Добавить аудиторию" />}
 
-            <br />
+            <br /><br/>
 
             {
                 !loadingAuditoryList ? (
@@ -166,7 +158,7 @@ export default React.memo(function Auditory({
 
                             <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
                                 <TableRow>
-                                    <TableHeaderColumn>Номер (название): <input placeholder="Фильтр" onChange={handleAudNameFilter} /></TableHeaderColumn>
+                                    <TableHeaderColumn style={{whiteSpace: "break-spaces"}}>Номер (название): <input style={{width: "100px"}} placeholder="Фильтр" onChange={handleAudNameFilter} /></TableHeaderColumn>
                                     <TableHeaderColumn>
                                         <select style={{ width: "100%" }} onChange={handleChangeTypeFilter}>
                                             <option value="">Тип: Все</option>
@@ -175,8 +167,10 @@ export default React.memo(function Auditory({
                                             })}
                                         </select>
                                     </TableHeaderColumn>
+                                    <TableHeaderColumn>Мультимедийная</TableHeaderColumn>
                                     <TableHeaderColumn>Площадь (м<sup>2</sup>)</TableHeaderColumn>
                                     <TableHeaderColumn>Количество мест</TableHeaderColumn>
+                                    <TableHeaderColumn style={{whiteSpace: "break-spaces"}}>Используется в ИС "Расписание"</TableHeaderColumn>
                                     <TableHeaderColumn></TableHeaderColumn>
                                 </TableRow>
                             </TableHeader>
@@ -186,10 +180,12 @@ export default React.memo(function Auditory({
 
                                     return (
                                         <TableRow key={item.Id}>
-                                            <TableRowColumn>{item.Name}</TableRowColumn>
-                                            <TableRowColumn>{item.TypeName}</TableRowColumn>
+                                            <TableRowColumn style={{whiteSpace: "break-spaces"}}>{item.Name}</TableRowColumn>
+                                            <TableRowColumn style={{whiteSpace: "break-spaces", overflow: "visible"}}>{item.TypeName}</TableRowColumn>
+                                            <TableRowColumn>{item.Multimedia === 1 ? "Да" : "Нет"}</TableRowColumn>
                                             <TableRowColumn>{item.Area}</TableRowColumn>
                                             <TableRowColumn>{item.NumberOfSeats}</TableRowColumn>
+                                            <TableRowColumn>{item.UsedInSchedule > 0 ? "Да" : "Нет"}</TableRowColumn>
                                             <TableRowColumn style={{ textAlign: "center" }}>
 
                                                 <FloatingActionButton title="Редактировать аудиторию" mini={true} secondary={false} onClick={handleClickEditModeBuilder(item)}>

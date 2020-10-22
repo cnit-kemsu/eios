@@ -8,7 +8,7 @@ import AppBar from 'material-ui/AppBar'
 
 import { red500, indigo500 } from 'material-ui/styles/colors'
 
-import { fetchDevApi as fetchApi, isAccessTokenValid} from 'share/utils'
+import { fetchDevApi as fetchApi, isAccessTokenValid } from 'share/utils'
 
 
 
@@ -40,26 +40,29 @@ export default class App extends React.Component {
 
         try {
 
-            let auditoryTypeList = await (await fetchApi('auditory/type', null, true, true)).json()
-            let buildingList = await (await fetchApi("auditory/building", null, true, true)).json()
-            let buildingTypeList = await (await fetchApi("auditory/building/type", null, true, true)).json()
-            let distanceList = await (await fetchApi("auditory/building/distance", null, true, true)).json()
-            let softwareList = await (await fetchApi("auditory/software", null, true, true)).json()
-            let nameList = await (await fetchApi("auditory/name", null, true, true)).json()
-            let equipmentList = await (await fetchApi("auditory/equipment", null, true, true)).json()
-            let softwareLicenseList = await (await fetchApi("auditory/software-license", null, true, true)).json()            
+            if (isAccessTokenValid()) {
 
-            this.setState({
-                distanceList: distanceList.result,
-                auditoryTypeList: auditoryTypeList.result,
-                buildingList: buildingList.result,
-                buildingTypeList: buildingTypeList.result,
-                softwareList: softwareList.result,
-                nameList: nameList.result,
-                equipmentList: equipmentList.result,
-                softwareLicenseList: softwareLicenseList.result,
-                loading: false
-            })
+                let auditoryTypeList = await (await fetchApi('auditory/type', null, true, true)).json()
+                let buildingList = await (await fetchApi("auditory/building", null, true, true)).json()
+                let buildingTypeList = await (await fetchApi("auditory/building/type", null, true, true)).json()
+                let distanceList = await (await fetchApi("auditory/building/distance", null, true, true)).json()
+                let softwareList = await (await fetchApi("auditory/software", null, true, true)).json()
+                let nameList = await (await fetchApi("auditory/name", null, true, true)).json()
+                let equipmentList = await (await fetchApi("auditory/equipment", null, true, true)).json()
+                let softwareLicenseList = await (await fetchApi("auditory/software-license", null, true, true)).json()
+
+                this.setState({
+                    distanceList: distanceList.result,
+                    auditoryTypeList: auditoryTypeList.result,
+                    buildingList: buildingList.result,
+                    buildingTypeList: buildingTypeList.result,
+                    softwareList: softwareList.result,
+                    nameList: nameList.result,
+                    equipmentList: equipmentList.result,
+                    softwareLicenseList: softwareLicenseList.result,
+                    loading: false
+                })
+            }
 
         } catch (err) {
             console.error(err)
@@ -111,7 +114,7 @@ export default class App extends React.Component {
         this.setState({ softwareList: [] })
         let softwareList = await fetchApi("auditory/software", { toJSON: true })
         this.setState({ softwareList: softwareList.result || [] })
-    }    
+    }
 
     handleChangeTab = (value) => {
         localStorage.setItem("auditory.tab", value)
@@ -132,8 +135,8 @@ export default class App extends React.Component {
                     {isAccessTokenValid() ?
                         (<Tabs value={this.state.curTab} onChange={this.handleChangeTab}>
                             <Tab label="Аудитории" value="auditory">
-                                <Auditory softwareList={this.state.softwareList}  nameList={this.state.nameList} equipmentList={this.state.equipmentList}
-                                loading={this.state.loading} updateAuditoryList={this.updateAuditoryList} auditoryList={this.state.auditoryList} auditoryTypeList={this.state.auditoryTypeList} buildingList={this.state.buildingList} />
+                                <Auditory softwareList={this.state.softwareList} nameList={this.state.nameList} equipmentList={this.state.equipmentList}
+                                    loading={this.state.loading} updateAuditoryList={this.updateAuditoryList} auditoryList={this.state.auditoryList} auditoryTypeList={this.state.auditoryTypeList} buildingList={this.state.buildingList} />
                             </Tab>
                             <Tab label="Корпуса" value="buildings">
                                 <Building loading={this.state.loading} updateBuildingList={this.updateBuildingList} buildingList={this.state.buildingList} buildingTypeList={this.state.buildingTypeList} />
@@ -147,9 +150,9 @@ export default class App extends React.Component {
                         </Tabs>) : (
                             <React.Fragment>
                                 <br />
-                                <Paper style={{ marginLeft: "15%", marginRight: "15%", padding: "8px"  }}>
+                                <Paper style={{ marginLeft: "15%", marginRight: "15%", padding: "8px" }}>
                                     <h2 style={{ textAlign: "center" }}>
-                                        Вы не авторизованы! Необходимо выполнить <a href="/a/eios?backUrl=@/a/auditory">вход</a> в систему.
+                                        Вы не авторизованы! Необходимо выполнить <a href="/home?backUrl=/auditory">вход</a> в систему.
                                     </h2>
                                 </Paper>
                             </React.Fragment>

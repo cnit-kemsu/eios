@@ -33,7 +33,8 @@ module.exports = (env, argv) => ({
         open: true,
         contentBase: __dirname + '/dist',
         historyApiFallback: true,
-        host: 'localhost',
+        host: '0.0.0.0',
+        port: 80,
         hot: true,
         disableHostCheck: true,
         headers: {

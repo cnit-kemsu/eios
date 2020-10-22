@@ -2,52 +2,11 @@ import React, { useState, useCallback } from 'react'
 import queryString from 'query-string'
 import { Button, TextField, Spinner, useTextField } from '@kemsu/eios-ui'
 import { Link, HistoryManager } from '@kemsu/react-routing'
-import { isAccessTokenValid, auth, /*requestToOldIais,*/ authInOldIais } from 'share/utils'
+import { isAccessTokenValid, auth, authInOldIais/*, authInOldSystem*/ } from 'share/utils'
 
 import { textFieldContainerCss, submitButtonCss, submitButtonContainerCss } from './authFormStyle'
 
-
-/*function authInOldSystem(login, password, url, server) {
-
-    return new Promise((resolve, reject) => {
-
-        let cancel = false
-
-        setTimeout(() => {
-            cancel = true
-            reject()
-        }, 15000);
-
-        (async () => {
-
-            await requestToOldIais(url, {
-                login: login,
-                password: encodeURI(password),
-                _t: Date.now()
-            }, true, server)
-
-            await requestToOldIais(url, {
-                login: login,
-                password: encodeURI(password),
-                _t: Date.now()
-            }, true, server)
-
-            if (!cancel) resolve();
-
-        })()
-
-    });
-
-}*/
-
-
-const oldSystemAuthUrls = [
-    { url: 'restricted/index_next.htm', server: 'riais' },
-    { url: 'restricted/index_next.htm', server: 'niais' },    
-    { url: 'entrant_2019/security/index_next.htm', server: 'xiais' },
-    { url: 'restricted/index_next.htm', server: 'xiais' },
-    
-]
+window.authInOldIais = authInOldIais
 
 
 export default function SigninForm({ onMessage, setError }) {
@@ -69,22 +28,15 @@ export default function SigninForm({ onMessage, setError }) {
 
             await auth(login, password, null, true)
 
-            const { backUrl } = queryString.parse(location.search)            
-
-            const oldSystemUrl = oldSystemAuthUrls[Math.round(Math.random())]            
+            const { backUrl } = queryString.parse(location.search)
 
             try {
-                await authInOldIais(login, password, oldSystemUrl.url, oldSystemUrl.server)
+                await authInOldIais(login, password)                
+                //await authInOldSystem(login, password, 'dekanat/restricted/index_next.htm', 'xiais')
             } catch (err) {
-                console.log(err)
-                try {                
-                    await authInOldIais(login, password, oldSystemAuthUrls[2].url, oldSystemAuthUrls[2].server)
-                } catch(err) {
-                    console.log(err)
-                    alert("Извините, в данный момент сервера загружены. Попробуйте войти позднее.")
-                    return
-                }
+                console.error(err)
             }
+
 
             if (/[а-яА-Я]+/.test(login) || /[а-яА-Я]+/.test(password)) {
 

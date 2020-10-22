@@ -1,11 +1,11 @@
-import React from 'react'
-import { FloatingActionButton, RaisedButton, MenuItem, DropDownMenu } from 'material-ui'
+import React, { useCallback, useState, useEffect, useRef, Fragment } from 'react'
+import { FloatingActionButton } from 'material-ui'
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import ActionDelete from 'material-ui/svg-icons/action/delete';
 import { NavigationArrowDropRight } from 'material-ui/svg-icons'
-import { css } from 'react-emotion'
+import { css } from '@emotion/core'
 
-import { fetchDevApi as fetchApi } from 'public/utils/api'
+import { fetchDevApi as fetchApi} from 'share/utils'
 
 import Loading from '../Loading'
 
@@ -26,14 +26,14 @@ const navItemCss = css`
 
 export default function NameBindingForm({ auditoryId }) {
 
-    const [parent, setParent] = React.useState(null)
-    const [names, setNames] = React.useState([])
-    const [bindings, setBindings] = React.useState([])
-    const [loading, setLoading] = React.useState(false)
+    const [parent, setParent] = useState(null)
+    const [names, setNames] = useState([])
+    const [bindings, setBindings] = useState([])
+    const [loading, setLoading] = useState(false)
 
-    const parents = React.useRef([])
+    const parents = useRef([])
 
-    React.useEffect(() => {
+    useEffect(() => {
 
         (async () => {
 
@@ -52,13 +52,14 @@ export default function NameBindingForm({ auditoryId }) {
 
         })()
 
-    }, [parent && parent.Id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [parent, parent?.Id])
 
-    React.useEffect(() => {
+    useEffect(() => {
         updateNameBindingList()
-    }, [])
+    }, [updateNameBindingList])
 
-    async function updateNameBindingList() {
+    const updateNameBindingList = useCallback(async () => {
 
         try {
 
@@ -70,7 +71,7 @@ export default function NameBindingForm({ auditoryId }) {
             console.error(err)
         }
 
-    }
+    }, [auditoryId])
 
     function checkInBindingList(id) {
         return bindings.some(({ Id }) => id === Id)
@@ -84,7 +85,7 @@ export default function NameBindingForm({ auditoryId }) {
 
             <h3>Существующие привязки</h3>
 
-            {bindings.length > 0 ? bindings.map(({ Id, Name }, i) => (<React.Fragment key={i}>
+            {bindings.length > 0 ? bindings.map(({ Id, Name }, i) => (<Fragment key={i}>
                 {i > 0 ? <hr /> : null}
                 <div className={rootCss}>
                     <span style={{ marginRight: "8px" }}>{Name}</span>
@@ -101,7 +102,7 @@ export default function NameBindingForm({ auditoryId }) {
                 </div>
 
 
-            </React.Fragment>)) : <i>- Привязки отсутствуют -</i>}
+            </Fragment>)) : <i>- Привязки отсутствуют -</i>}
 
             <br />
 
@@ -110,7 +111,7 @@ export default function NameBindingForm({ auditoryId }) {
             <br />
 
             <a className={navItemCss} href="" onClick={(e) => { e.preventDefault(); parents.current = []; setParent(null) }}>Наименования</a>
-            {parents.current.map((p, i) => <React.Fragment><span> / </span><a className={navItemCss} href="" onClick={(e) => { e.preventDefault(); parents.current = parents.current.slice(0, i + 1); setParent(p); }}>{p.Name}</a></React.Fragment>)}
+            {parents.current.map((p, i) => <Fragment><span> / </span><a className={navItemCss} href="" onClick={(e) => { e.preventDefault(); parents.current = parents.current.slice(0, i + 1); setParent(p); }}>{p.Name}</a></React.Fragment>)}
 
             <br /> <br />
 
@@ -118,7 +119,7 @@ export default function NameBindingForm({ auditoryId }) {
 
                 const inBindingList = checkInBindingList(nameItem.Id)
 
-                return (<React.Fragment key={i}>
+                return (<Fragment key={i}>
                     {i > 0 ? <hr /> : null}
                     <div className={rootCss}>
                         <span style={{ marginRight: "8px" }}>{nameItem.Name}</span>
@@ -142,7 +143,7 @@ export default function NameBindingForm({ auditoryId }) {
 
                         }} mini={true}>{nameItem.ChildCount === 0 ? (inBindingList ? <ActionDelete /> : <ContentAdd />) : <NavigationArrowDropRight />}</FloatingActionButton>
                     </div>
-                </React.Fragment>)
+                </Fragment>)
             })}
         </div>
     )

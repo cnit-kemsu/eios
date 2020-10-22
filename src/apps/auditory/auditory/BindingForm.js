@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import { FloatingActionButton, TextField } from 'material-ui'
-import { css } from 'react-emotion'
+import { css } from '@emotion/core'
 
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import ActionDelete from 'material-ui/svg-icons/action/delete';
@@ -13,7 +13,7 @@ const rootCss = css`
     align-items: center;
 `
 
-function convert(allItems, bindings, filterStr) {    
+function convert(allItems, bindings, filterStr) {
 
     allItems = allItems.map(software => {
 
@@ -35,13 +35,13 @@ function convert(allItems, bindings, filterStr) {
 
 export default function BindingForm({ bindingProcess, loading, bindTooltip, unbindTooltip, bind, unbind, items, bindings }) {
 
-    const [filterStr, setFilterStr] = React.useState()    
+    const [filterStr, setFilterStr] = useState()
 
-    const handleChangeFilterStr = React.useCallback((e, v) => setFilterStr(v.trim()), [])    
-  
+    const handleChangeFilterStr = useCallback((e, v) => setFilterStr(v.trim()), [])
+
     return (
-        <React.Fragment>
-            
+        <>
+
             <br />
 
             <TextField value={filterStr} placeholder="Фильтр по названию" onChange={handleChangeFilterStr} />
@@ -61,6 +61,6 @@ export default function BindingForm({ bindingProcess, loading, bindTooltip, unbi
                     </React.Fragment>
                 ))
             ) : <Loading />}
-        </React.Fragment>
+        </>
     )
 }

@@ -1,12 +1,10 @@
 import React from 'react'
 
-import { fetchDevApi as fetchApi } from 'public/utils/api'
+import { fetchDevApi as fetchApi} from 'share/utils'
 
 import {
     Table,
-    TableBody,
-    TableHeader,
-    TableHeaderColumn,
+    TableBody,    
     TableRow,
     TableRowColumn,
 } from 'material-ui/Table'
@@ -70,7 +68,7 @@ export default class DistanceMatrix extends React.Component {
         }
     }
 
-    handleChangeDistance = (e, i, value) => {
+    handleChangeDistance = (_e, i) => {
         this.setState({ distance: +i });
     }
 

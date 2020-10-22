@@ -2,7 +2,65 @@
 import { logout, getUserInfo, isAccessTokenValid } from './auth'
 
 
-export function authInOldIais(login, password, appUrl, server = 'xiais') {
+export function authInOldSystem(login, password, url, server) {
+
+    return new Promise((resolve, reject) => {
+
+        let cancel = false
+
+        const makeTimer = () => setTimeout(() => {
+
+            console.warn("Время попытки авторизации истекло", url, server)
+
+            cancel = true
+            reject()
+        }, 30000)
+
+        let timerId = makeTimer()
+
+        /*(async () => {
+ 
+            await authInOldIais(login, password, url, server)
+ 
+            if(!cancel) {
+                clearTimeout(timerId)
+                resolve()
+            }
+ 
+        })()*/
+
+        requestToOldIais(url, {
+            //requestToOldIais('restricted/index_next.htm', {
+            login: login,
+            password: encodeURI(password),
+            _t: Date.now()
+        }, () => {
+
+            if (cancel) return
+
+            clearTimeout(timerId)
+
+            timerId = makeTimer()
+
+            requestToOldIais(url, {
+                //requestToOldIais('restricted/index_next.htm', {
+                login: login,
+                password: encodeURI(password),
+                _t: Date.now()
+            }, () => {
+                if (!cancel) {
+                    clearTimeout(timerId)
+                    resolve()
+                }
+            }, true, server)
+
+        }, true, server)
+
+    });
+
+}
+
+export function authInOldIais(login, password) {
 
     return new Promise((resolve, reject) => {
 
@@ -11,7 +69,7 @@ export function authInOldIais(login, password, appUrl, server = 'xiais') {
         iframe.name = Date.now()
 
         document.body.appendChild(iframe)
-        iframe.src = `https://xiais.kemsu.ru/dekanat/eios-next-sync/auth.htm`        
+        iframe.src = 'https://xiais.kemsu.ru/dekanat/eios-next-sync/auth.htm'
 
         let handler = async (e) => {     
             
@@ -30,7 +88,7 @@ export function authInOldIais(login, password, appUrl, server = 'xiais') {
             if (!messagePosted) {
                 messagePosted = true
                 window.addEventListener("message", handler, false)
-                iframe.contentWindow.postMessage(JSON.stringify({ login, password, server, appUrl }), "*")               
+                iframe.contentWindow.postMessage(JSON.stringify({ login, password }), "*")               
             }
         })
 

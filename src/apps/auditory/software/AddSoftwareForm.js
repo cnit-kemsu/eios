@@ -1,17 +1,14 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import TextField from 'material-ui/TextField'
 import SelectField from 'material-ui/SelectField'
 import MenuItem from 'material-ui/MenuItem'
 
-import { css } from 'react-emotion'
+import { css } from '@emotion/core'
 
-import { DatePicker } from 'material-ui'
-import { FileFileDownload } from 'material-ui/svg-icons'
-
-import FloatingActionButton from 'material-ui/FloatingActionButton'
+import { DatePicker, Checkbox } from 'material-ui'
 import RaisedButton from 'material-ui/RaisedButton'
 
-import { fetchDevApi as fetchApi } from 'public/utils/api'
+import { fetchDevApi as fetchApi} from 'share/utils'
 
 const textFieldProps = {
     inputStyle: { height: "auto", fontSize: "13px" },
@@ -34,30 +31,30 @@ const rootCss = css`
 
 export default function EditSoftwareForm({ onFinish, softwareLicenseList, setError }) {
 
-    const [name, setName] = React.useState()
-    const [description, setDescription] = React.useState()
-    const [requisites, setRequisites] = React.useState()
-    const [license, setLicense] = React.useState()
-    const [purchaseDate, setPurchaseData] = React.useState(new Date())
-    const [validity, setValidity] = React.useState(new Date())
-    const [licenseCount, setLicenseCount] = React.useState()
-    const [files, setFiles] = React.useState()
+    const [name, setName] = useState()
+    const [description, setDescription] = useState()
+    const [requisites, setRequisites] = useState()
+    const [license, setLicense] = useState()
+    const [purchaseDate, setPurchaseData] = useState(new Date())
+    const [validity, setValidity] = useState(new Date())
+    const [licenseCount, setLicenseCount] = useState()
+    const [files, setFiles] = useState()
+    const [noScan, setNoScan] = useState(false)    
 
-    const [saving, setSaving] = React.useState(false)
+    const onChangeName = useCallback((e) => setName(e.target.value), [setName])
+    const onChangeDescription = useCallback((e) => setDescription(e.target.value), [setDescription])
+    const onChangeRequisites = useCallback((e) => setRequisites(e.target.value), [setRequisites])
+    const onChangeLicense = useCallback((e, i, value) => setLicense(value), [setLicense])
+    const onChangePurchaseDate = useCallback((e, value) => setPurchaseData(value), [setPurchaseData])
+    const onChangeValidity = useCallback((e, value) => setValidity(value), [setValidity])
+    const onChangeLicenseCount = useCallback((e) => setLicenseCount(e.target.value), [setLicenseCount])
+    const onChangeNoScan = useCallback(() => setNoScan(!noScan), [noScan])
 
-    const onChangeName = React.useCallback((e) => setName(e.target.value), [setName])
-    const onChangeDescription = React.useCallback((e) => setDescription(e.target.value), [setDescription])
-    const onChangeRequisites = React.useCallback((e) => setRequisites(e.target.value), [setRequisites])
-    const onChangeLicense = React.useCallback((e, i, value) => setLicense(value), [setLicense])
-    const onChangePurchaseDate = React.useCallback((e, value) => setPurchaseData(value), [setPurchaseData])
-    const onChangeValidity = React.useCallback((e, value) => setValidity(value), [setValidity])
-    const onChangeLicenseCount = React.useCallback((e) => setLicenseCount(e.target.value), [setLicenseCount])
-
-    const onChangeFile = React.useCallback((e) => {
+    const onChangeFile = useCallback((e) => {
         setFiles(e.target.files)
-    })
+    }, [])
 
-    const onSubmit = React.useCallback(async () => {
+    const onSubmit = useCallback(async () => {
 
         try {
 
@@ -71,9 +68,7 @@ export default function EditSoftwareForm({ onFinish, softwareLicenseList, setErr
             if(!name) {
                 alert("Необходимо указать наименование ПО!")
                 return
-            }
-
-            setSaving(true)
+            }            
 
             if (files && files.length === 1) {
 
@@ -99,19 +94,18 @@ export default function EditSoftwareForm({ onFinish, softwareLicenseList, setErr
                 method: 'put',
                 body: JSON.stringify({                    
                     name, description, requisites, license, purchaseDate: purchaseDate.toString(),
-                    validity: validity.toString(), licenseCount, documentFileName
+                    validity: validity.toString(), licenseCount, documentFileName, noScan
                 })
             }, true, true)
 
             onFinish(true)
-
-            setSaving(false)
+            
 
         } catch (err) {
             setError(err)
         }
 
-    }, [name, description, requisites, license, purchaseDate, validity, licenseCount, files])    
+    }, [files, name, description, requisites, license, purchaseDate, validity, licenseCount, noScan, onFinish, setError])    
 
     return (
         <div style={{ marginLeft: '15%' }} className={rootCss}>
@@ -153,6 +147,10 @@ export default function EditSoftwareForm({ onFinish, softwareLicenseList, setErr
                 <input onChange={onChangeFile} type="file" />
             </div>
             <br />
+            <div>
+                <Checkbox onClick={onChangeNoScan} label="Скан документов не требуется" />
+            </div>
+            <br/>
             <div style={{ marginBottom: '32px' }}>
                 <RaisedButton buttonStyle={{color: 'white'}} primary onClick={onFinish}>Отмена</RaisedButton>
                 <RaisedButton buttonStyle={{color: 'white'}} primary onClick={onSubmit} style={{ marginLeft: '8px' }}>Добавить</RaisedButton>

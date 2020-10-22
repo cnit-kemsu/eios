@@ -1,7 +1,7 @@
 import $ from 'jquery'
 
 
-export function getBlocksFrom(self, xml) {
+export function getBlocksFrom() {
     return [{
         code: 'Б1',
         name: 'Дисциплины (модули)'

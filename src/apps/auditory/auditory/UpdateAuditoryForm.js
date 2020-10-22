@@ -1,28 +1,14 @@
-import React from 'react'
-import { RaisedButton, TextField, SelectField, MenuItem, Tab, Tabs, FloatingActionButton } from 'material-ui'
-import { css } from 'react-emotion'
-import ContentAdd from 'material-ui/svg-icons/content/add';
-import ActionDelete from 'material-ui/svg-icons/action/delete';
+import React, { useEffect, useState, useCallback, useRef } from 'react'
+import { RaisedButton, TextField, SelectField, MenuItem, Tab, Tabs, Checkbox } from 'material-ui'
+import { css } from '@emotion/core'
 
-import { fetchDevApi as fetchApi } from 'public/utils/api'
 
-import NameBindingForm from './NameBindingForm'
+import { fetchDevApi as fetchApi} from 'share/utils'
+
+import NameBindingForm  from './NameBindingForm2'
 import BindingForm from './BindingForm'
+import MatTechEquipment from './MatTechEquipment'
 
-import Loading from '../Loading'
-
-const textFieldProps = {
-    inputStyle: { height: "auto", fontSize: "13px" },
-    style: { height: "36px" }
-}
-
-const textareaProps = {
-    underlineStyle: { bottom: '0px' },
-    inputStyle: { border: '1px solid rgba(1,1,1,0.2)', borderBottom: 'none' },
-    rows: 6,
-    multiLine: true,
-    style: { fontSize: "13px" }
-}
 
 const rootCss = css`
     p {
@@ -31,61 +17,40 @@ const rootCss = css`
 `
 
 
+export default function UpdateAuditoryForm({ reset, buildingId, softwareList, auditory, onFinish, editMode, auditoryTypeList }) {    
 
-function convertSoftwares(softwares, audSoftwares, filterStr) {
+    const [name, setName] = useState(editMode ? auditory.Name : "")
+    const [typeId, setTypeId] = useState(editMode ? auditory.Type : "")
+    const [area, setArea] = useState(editMode ? auditory.Area : "")
+    const [numberOfSeats, setNumberOfSeats] = useState(editMode ? auditory.NumberOfSeats : "")
+    const [multimedia, setMultimedia] = useState(editMode ? (auditory.Multimedia === 1 ? true : false) : "")    
 
-    softwares = softwares.map(software => {
+    const [softwares, setSoftwares] = useState([])
+    const [loadingSoftwares, setLoadingSoftwares] = useState(true)
+    const [bindingSoftware, setBindingSoftware] = useState()        
 
-        software.bindToAud = audSoftwares.some(({ Id }) => software.Id === Id)
-
-        return software
-    })
-
-    softwares.sort((a, b) => {
-        if (!a.bindToAud && b.bindToAud) return 1
-        if (a.bindToAud && !b.bindToAud) return -1
-        return 0
-    })
-
-    if (filterStr) softwares = softwares.filter(({ Name }) => Name.toLowerCase().includes(filterStr.toLowerCase()))
-
-    return softwares
-}
+    const updateMatTechEquipment = useRef(false)
 
 
-export default function UpdateAuditoryForm({ buildingId, softwareList, nameList, equipmentList, auditory, setError, onFinish, editMode, auditoryTypeList }) {
-
-    const [name, setName] = React.useState(editMode ? auditory.Name : null)
-    const [typeId, setTypeId] = React.useState(editMode ? auditory.Type : null)
-    const [area, setArea] = React.useState(editMode ? auditory.Area : null)
-    const [numberOfSeats, setNumberOfSeats] = React.useState(editMode ? auditory.NumberOfSeats : null)
-
-    const [softwares, setSoftwares] = React.useState([])
-    const [loadingSoftwares, setLoadingSoftwares] = React.useState(true)
-    const [bindingSoftware, setBindingSoftware] = React.useState()    
-
-    const [equipments, setEquipments] = React.useState([])
-    const [loadingEquipments, setLoadingEquipments] = React.useState(true)
-    const [bindingEquipment, setBindingEquipment] = React.useState()
-
-
-    const handleChangeAudType = React.useCallback((e, i, value) => {
+    const handleChangeAudType = useCallback((e, i, value) => {
         setTypeId(value)
     }, [])
 
-    const handleChangeName = React.useCallback((e, value) => {
+    const handleChangeName = useCallback((e, value) => {
         setName(value)
     }, [])
 
-    const handleChangeArea = React.useCallback((e, v) => {
+    const handleChangeArea = useCallback((e, v) => {
         setArea(v)
     }, [])
 
-    const handleChangeCountOfSeats = React.useCallback((e, v) => {
+    const handleChangeCountOfSeats = useCallback((e, v) => {
         setNumberOfSeats(v)
-    }, [])
+    }, [])    
 
-    const onEdit = React.useCallback(async (e) => {
+    const handleChangeMultimedia = useCallback(() => setMultimedia(!multimedia), [multimedia])
+
+    const onEdit = useCallback(async () => {
 
         if (!name || !typeId) return
 
@@ -98,7 +63,8 @@ export default function UpdateAuditoryForm({ buildingId, softwareList, nameList,
                     typeId,
                     buildingId,
                     area,
-                    numberOfSeats
+                    numberOfSeats,
+                    multimedia
                 }),
                 throwError: true
             })
@@ -109,9 +75,9 @@ export default function UpdateAuditoryForm({ buildingId, softwareList, nameList,
             let json = await err.json()
             alert(json.error || json.message)
         }
-    }, [name, typeId, buildingId, area, numberOfSeats])
+    }, [name, typeId, auditory.Id, buildingId, area, numberOfSeats, multimedia, onFinish])
 
-    const onAdd = React.useCallback(async (e) => {
+    const onAdd = useCallback(async () => {
 
         if (!name || !typeId) return
 
@@ -124,7 +90,8 @@ export default function UpdateAuditoryForm({ buildingId, softwareList, nameList,
                     typeId,
                     buildingId,
                     area,
-                    numberOfSeats
+                    numberOfSeats,
+                    multimedia
                 })
             }, true, true);
 
@@ -140,19 +107,13 @@ export default function UpdateAuditoryForm({ buildingId, softwareList, nameList,
                 alert(result.error || result.message)
             }
         }
-    }, [name, typeId, buildingId, area, numberOfSeats])
+    }, [name, typeId, buildingId, area, numberOfSeats, multimedia, onFinish])
 
-    async function updateAudSoftwares() {
+    const updateAudSoftwares = useCallback(async () => {
         setLoadingSoftwares(true)
         setSoftwares(await fetchApi(`auditory/${auditory.Id}/software`, { toJSON: true }))
         setLoadingSoftwares(false)
-    }   
-
-    async function updateAudEquipments() {
-        setLoadingEquipments(true)
-        setEquipments(await fetchApi(`auditory/${auditory.Id}/equipment`, { toJSON: true }))
-        setLoadingEquipments(false)
-    }
+    }, [auditory.Id])  
 
     const bindSoftware = (softwareId) => async () => {
 
@@ -160,6 +121,7 @@ export default function UpdateAuditoryForm({ buildingId, softwareList, nameList,
 
             setBindingSoftware(true)
             await fetchApi(`auditory/${auditory.Id}/software/${softwareId}`, { method: 'post' }, true, true)
+            updateMatTechEquipment.current = true
             updateAudSoftwares()
 
         } catch (err) {
@@ -168,44 +130,14 @@ export default function UpdateAuditoryForm({ buildingId, softwareList, nameList,
         } finally {
             setBindingSoftware(false)
         }
-    }
+    }  
 
-    const bindName = (nameId) => async () => {
-
-        try {
-
-            setBindingName(true)
-            await fetchApi(`auditory/${auditory.Id}/name/${nameId}`, { method: 'post' }, true, true)
-            updateAudNames()
-
-        } catch (err) {
-            let result = await err.json()
-            alert(result.error || result.message)
-        } finally {
-            setBindingName(false)
-        }
-    }
-
-    const bindEquipment = (eqId) => async () => {
-
-        try {
-
-            setBindingEquipment(true)
-            await fetchApi(`auditory/${auditory.Id}/equipment/${eqId}`, { method: 'post' }, true, true)
-            updateAudEquipments()
-
-        } catch (err) {
-            let result = await err.json()
-            alert(result.error || result.message)
-        } finally {
-            setBindingEquipment(false)
-        }
-    }
-
+    
     const unbindSoftware = (softwareId) => async () => {
         try {
             setBindingSoftware(true)
             await fetchApi(`auditory/${auditory.Id}/software/${softwareId}`, { method: "delete" }, true, true)
+            updateMatTechEquipment.current = true
             updateAudSoftwares()
 
         } catch (err) {
@@ -216,51 +148,13 @@ export default function UpdateAuditoryForm({ buildingId, softwareList, nameList,
         }
     }
 
-    const unbindName = (nameId) => async () => {
-
-        try {
-
-            setBindingName(true)
-            await fetchApi(`auditory/${auditory.Id}/name/${nameId}`, { method: 'delete' }, true, true)
-            updateAudNames()
-
-        } catch (err) {
-            let result = await err.json()
-            alert(result.error || result.message)
-        } finally {
-            setBindingName(false)
-        }
-    }
-
-    const unbindEquipment = (eqId) => async () => {
-
-        try {
-
-            setBindingEquipment(true)
-            await fetchApi(`auditory/${auditory.Id}/equipment/${eqId}`, { method: 'delete' }, true, true)
-            updateAudEquipments()
-
-        } catch (err) {
-            let result = await err.json()
-            alert(result.error || result.message)
-        } finally {
-            setBindingEquipment(false)
-        }
-    }
-
-    React.useEffect(() => {
-
-        (async () => {
-            await updateAudSoftwares()            
-            await updateAudEquipments()
-        })()
-
-
-    }, [editMode && auditory.Id])
+    useEffect(() => {
+        updateAudSoftwares()
+    }, [updateAudSoftwares])
 
     const baseForm = (
 
-        <React.Fragment>
+        <>
             <br />
 
             <div >
@@ -270,9 +164,14 @@ export default function UpdateAuditoryForm({ buildingId, softwareList, nameList,
 
             <div >
                 <p>Тип:</p>
-                <SelectField errorText={!typeId && "Необходимо выбрать тип аудитории"} required value={typeId} onChange={handleChangeAudType}>
+                <SelectField autoWidth={true} fullWidth={true} errorText={!typeId && "Необходимо выбрать тип аудитории"} required value={typeId} onChange={handleChangeAudType}>
                     {auditoryTypeList.map(item => <MenuItem key={item.Id} value={item.Id} primaryText={item.Name} />)}
                 </SelectField>
+            </div>
+
+            <div>
+                <p>Мультимедийная аудитория:</p>
+                <Checkbox onClick={handleChangeMultimedia} checked={multimedia} />
             </div>
 
             <div>
@@ -283,7 +182,7 @@ export default function UpdateAuditoryForm({ buildingId, softwareList, nameList,
             <div>
                 <p>Количество мест:</p>
                 <TextField onChange={handleChangeCountOfSeats} value={numberOfSeats} type="number" min={0} />
-            </div>
+            </div>            
 
             <br />
 
@@ -292,15 +191,16 @@ export default function UpdateAuditoryForm({ buildingId, softwareList, nameList,
                 <RaisedButton disabled={!name || !typeId} onClick={editMode ? onEdit : onAdd} type="submit" buttonStyle={{ color: 'white' }} primary style={{ marginLeft: '8px' }}>{editMode ? 'Сохранить' : 'Добавить'}</RaisedButton>
             </div>
 
-        </React.Fragment>
+        </>
     )
 
     let content
 
     if (editMode) {
         content = (
-            <React.Fragment>
+            <>
                 <br />
+                <RaisedButton onClick={reset} primary buttonStyle={{ color: 'white'}} style={{margin: '1em 0px'}}>Назад</RaisedButton>
                 <Tabs>
                     <Tab label="Основная информация" value="base">
                         {baseForm}
@@ -310,14 +210,13 @@ export default function UpdateAuditoryForm({ buildingId, softwareList, nameList,
                             unbindTooltip="Удалить связь с аудиторией" bindings={softwares} bind={bindSoftware} unbind={unbindSoftware} />
                     </Tab>
                     <Tab label="Наименования" value="names">
-                        <NameBindingForm auditoryId={auditory.Id}/>
+                        <NameBindingForm auditoryId={auditory.Id}/>                                               
                     </Tab>
                     <Tab label="Оснащенность" value="equipment ">
-                        <BindingForm bindingProcess={bindingEquipment} loading={loadingEquipments} items={equipmentList} bindTooltip="Привязать к аудитории"
-                            unbindTooltip="Удалить связь с аудиторией" bindings={equipments} bind={bindEquipment} unbind={unbindEquipment} />
+                        <MatTechEquipment updateRef={updateMatTechEquipment} auditoryId={auditory.Id} />
                     </Tab>
                 </Tabs>
-            </React.Fragment>
+            </>
         )
     } else {
         content = baseForm

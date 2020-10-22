@@ -1,5 +1,5 @@
 import React from 'react';
-import { fetchDevApi as fetchApi } from 'public/utils/api'
+import { fetchDevApi as fetchApi} from 'share/utils'
 
 import {
     Table,

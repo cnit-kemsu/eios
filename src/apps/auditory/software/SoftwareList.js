@@ -9,21 +9,15 @@ import {
 } from 'material-ui/Table'
 
 
-import TextField from 'material-ui/TextField';
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
-
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import RaisedButton from 'material-ui/RaisedButton';
 
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import ActionDelete from 'material-ui/svg-icons/action/delete';
 import EditorModeEdit from 'material-ui/svg-icons/editor/mode-edit';
-import ActionDone from 'material-ui/svg-icons/action/done';
-import ContentUndo from 'material-ui/svg-icons/content/undo';
 import { FileFileDownload } from 'material-ui/svg-icons'
 
-import { fetchDevApi as fetchApi } from 'public/utils/api'
+import { fetchDevApi as fetchApi} from 'share/utils'
 
 import AddSoftwareForm from './AddSoftwareForm'
 
@@ -61,21 +55,23 @@ export default function SoftwareList({ loading, softwareLicenseList, softwareLis
                         <TableHeaderColumn style={{ textAlign: "center" }}>Дата приобритения</TableHeaderColumn>
                         <TableHeaderColumn style={{ textAlign: "center" }}>Дата завершения лицензии</TableHeaderColumn>
                         <TableHeaderColumn style={{ textAlign: "center" }}>Кол-во лицензий</TableHeaderColumn>
+                        <TableHeaderColumn style={{ textAlign: "center" }}>Требование скана документа</TableHeaderColumn>
                         <TableHeaderColumn></TableHeaderColumn>
                     </TableRow>
                 </TableHeader>
                 <TableBody displayRowCheckbox={false}>
                     {softwareList.map((sofware, i) => {
 
-                        const { Id, Name, LicenseName, PurchaseDate, Validity, LicenseCount, DocumentFileName } = sofware
+                        const { Id, Name, LicenseName, PurchaseDate, Validity, LicenseCount, DocumentFileName, NoScan } = sofware
 
                         return (
                             <TableRow key={i}>
-                                <TableRowColumn style={{ textAlign: "center" }}>{Name}</TableRowColumn>
-                                <TableRowColumn style={{ textAlign: "center" }}>{LicenseName}</TableRowColumn>
+                                <TableRowColumn style={{ textAlign: "center", whiteSpace: "break-spaces" }}>{Name}</TableRowColumn>
+                                <TableRowColumn style={{ textAlign: "center", whiteSpace: "break-spaces"  }}>{LicenseName}</TableRowColumn>
                                 <TableRowColumn style={{ textAlign: "center" }}>{(new Date(PurchaseDate)).toLocaleDateString()}</TableRowColumn>
                                 <TableRowColumn style={{ textAlign: "center" }}>{(new Date(Validity)).toLocaleDateString()}</TableRowColumn>
                                 <TableRowColumn style={{ textAlign: "center" }}>{LicenseCount}</TableRowColumn>
+                                <TableRowColumn style={{ textAlign: "center" }}>{NoScan ? "Нет" : "Да"}</TableRowColumn>
                                 <TableRowColumn style={{ textAlign: "center" }}>
 
                                     {DocumentFileName && <FloatingActionButton mini={true} title="Скачать прикрепленный файл" target="_blank" href={`https://api-next.kemsu.ru/api/storage/auditory/${DocumentFileName}`}>
